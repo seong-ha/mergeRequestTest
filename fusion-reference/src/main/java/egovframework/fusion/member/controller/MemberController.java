@@ -28,16 +28,6 @@ public class MemberController {
 	@Autowired
 	MemberService memberService;
 	
-//	@ExceptionHandler
-//	@ResponseBody
-//	@ResponseStatus(HttpStatus.BAD_REQUEST)
-//	public void handleException(IllegalArgumentException ex) {
-//		Map<String, String> resultMap = new HashMap<>();
-//		
-//		resultMap.put("result", "fail");
-//		resultMap.put("msg","");
-//	}
-	
 	@Autowired
 	HttpServletRequest request;
 	
