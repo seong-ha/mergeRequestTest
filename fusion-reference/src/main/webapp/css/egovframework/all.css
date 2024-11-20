@@ -1,0 +1,842 @@
+header {
+	margin-bottom: 20px;
+}
+
+.b-example-divider {
+	height: 3rem;
+	background-color: rgba(0, 0, 0, .1);
+	border: solid rgba(0, 0, 0, .15);
+	border-width: 1px 0;
+	box-shadow: inset 0 .5em 1.5em rgba(0, 0, 0, .1), inset 0 .125em .5em
+		rgba(0, 0, 0, .15);
+}
+
+.b-example-vr {
+	flex-shrink: 0;
+	width: 1.5rem;
+	height: 100vh;
+}
+
+.bi {
+	vertical-align: -.125em;
+	fill: currentColor;
+}
+
+.nav-scroller {
+	position: relative;
+	z-index: 2;
+	height: 2.75rem;
+	overflow-y: hidden;
+}
+
+.nav-scroller .nav {
+	display: flex;
+	flex-wrap: nowrap;
+	padding-bottom: 1rem;
+	margin-top: -1px;
+	overflow-x: auto;
+	text-align: center;
+	white-space: nowrap;
+	-webkit-overflow-scrolling: touch;
+}
+
+.tb-title {
+	width: 40%;
+}
+
+#paging_part {
+	clear: both;
+	text-align: center;
+}
+
+.page_table {
+	display: inline-block;
+	border-collapse: collapse;
+}
+
+#paging_part .page_table td {
+	border: 1px solid #e6e6e6;
+	width: 35px;
+	height: 35px;
+	text-align: center;
+	vertical-align: middle;
+}
+
+#paging_part .page_table td a {
+	color: gray;
+	font-size: 0.8rem;
+	text-decoration-line: none;
+}
+
+#paging_part .page_table td:hover {
+	background-color: darkslategrey;
+	color: white;
+	border: 1px solid darkslategrey;
+	cursor: pointer;
+}
+
+#paging_part .page_table td:hover a {
+	color: white
+}
+
+#paging_part .page_table td.active {
+	background-color: darkslategrey;
+	border: 1px solid darkslategrey;
+}
+
+#paging_part .page_table td.active a {
+	color: white;
+}
+
+span.noticeBadge {
+	border: 2px solid gray;
+	border-radius: 5px;
+	background-color: #f9f9f8;
+	margin-right: 5px;
+}
+
+.page_table td a {
+	padding: 20%;
+}
+
+.page_table td a.aPadding {
+	padding: 20% 35% 20% 35%;
+}
+
+.aTitle {
+	color: blue;
+	text-decoration-line: none;
+}
+
+.aTitle:hover {
+	cursor: pointer;
+	color: redOrange !important;
+}
+
+main.mt-5 {
+	margin-top: 0 !important;
+}
+
+main.mt-5.pt-5 {
+	padding-top: 0 !important;
+}
+
+.menus-hover:hover {
+	color: yellow !important;
+}
+
+.selected-menu {
+	color: blue !important;
+}
+
+.gallery-text-header {
+	display: flex;
+	justify-content: space-between;
+}
+
+.thumbnail:hover, .gallery-text-header:hover {
+	cursor: pointer;
+}
+
+.gallery-title {
+	font-size: 1.2rem;
+	font-weight: bold;
+}
+
+.gallery-writer {
+	margin: 0;
+	text-align: right;
+	color: gray;
+}
+
+.hashTag {
+	text-decoration-line: none;
+}
+
+.hashTag:hover {
+	color: orange;
+}
+
+.galleryList-board-type {
+	color: #FF5675;
+}
+
+.insert {
+	padding: 20px 30px;
+	display: block;
+	width: 100%;
+	margin: 5vh auto;
+	border: 1px solid #dbdbdb;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.insert .file-list {
+	height: 200px;
+	overflow: auto;
+	border: 1px solid #989898;
+	padding: 10px;
+	white-space: wrap;
+	text-overflow: ellipsis;
+}
+
+.insert .file-list .filebox p {
+	font-size: 14px;
+	margin-bottom: 0;
+	display: inline-block;
+}
+
+.insert .file-list .filebox .delete {
+	color: #ff5353;
+	margin-left: 5px;
+	cursor: pointer;
+	text-decoration-line: none;
+	vertical-align: middle;
+	font-size: 1.5rem;
+	line-height: 0;
+}
+
+.insert .file-list .filebox .delete:hover {
+	font-weight: bold;
+}
+
+.insert .input-file-btn {
+	padding: 6px 25px;
+	background-color: #FF6600;
+	border-radius: 4px;
+	color: white;
+	cursor: pointer;
+	text-align: left;
+}
+
+.like {
+	text-decoration: none;
+	color: inherit;
+	cursor: pointer;
+}
+
+.right_area {
+	border-radius: 10px;
+	width: 100px;
+	margin: 0;
+}
+
+.right_area .icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 39px;
+	height: 39px;
+	border-radius: 50%;
+	border: solid 2px #eaeaea;
+	background-color: #fff;
+}
+
+.icon.heart {
+	display: inline-block;
+}
+
+.icon.heart img {
+	width: 21px;
+	height: 21px;
+	margin-left: 7px;
+	margin-top: 8px;
+}
+
+.icon.heart.fas {
+	color: red
+}
+
+.heart {
+	transform-origin: center;
+}
+
+.heart.active img {
+	animation: animateHeart .3s linear forwards;
+}
+
+.like_cnt {
+	vertical-align: middle;
+}
+
+@keyframes animateHeart{
+    0%{transform:scale(.2);}
+    40%{transform:scale(1.2);}
+    100%{transform:scale(1);}
+}
+
+.board-cnt {
+	font-size: 0.9rem;
+	font-style: italic;
+}
+
+/* a태그 href 안쓰고 href효과 만들기 */
+.make-href {
+	color: blue;
+}
+
+.make-href:hover {
+	color: redOrange;
+	cursor: pointer;
+}
+
+#survey-guide {
+	width: 500px;
+	border: 1px solid black;
+	margin: 20px auto;
+	padding: 10px;
+}
+
+#survey-guide .guide-list li {
+	display: flex;
+	margin-bottom: 15px;
+	width: 447px;
+}
+
+#survey-guide .guide-list li .guide-title {
+	width: 90px;
+}
+
+#survey-guide .guide-list li .guide-title+div {
+	width: 357px;
+}
+
+.caution-guide {
+	font-weight: bold;
+	margin-bottom: 30px;
+}
+
+.caution-guide p {
+	margin: 5px;
+	padding: 0;
+}
+
+#survey-permission {
+	display: flex;
+	justify-content: space-evenly;
+	margin: auto auto;
+}
+
+#survey-permission .no-more-participate {
+	color: red;
+	font-weight: bold;
+}
+
+#surveyPost-div {
+	width: 950px;
+	margin: 30px auto;
+}
+
+#survey-header {
+	margin: auto auto;
+	display: flex;
+	justify-content: space-between;
+}
+
+#progress-box>h2 {
+	display: inline-block;
+}
+
+#progress {
+	appearance: none;
+}
+
+#progress::-webkit-progress-bar {
+	background: #f0f0f0;
+	border-radius: 10px;
+	box-shadow: inset 3px 3px 10px #ccc;
+}
+
+#progress::-webkit-progress-value {
+	border-radius: 10px;
+	background: #1D976C;
+	background: -webkit-linear-gradient(to right, #93F9B9, #1D976C);
+	background: linear-gradient(to right, #93F9B9, #1D976C);
+}
+
+#outNSaveBtn {
+	text-align: right;
+}
+
+.question-page {
+	border: 1px solid black;
+	margin: auto auto;
+	padding: 30px;
+}
+
+.parent-question {
+	margin-top: 40px;
+	margin-bottom: 15px;
+	display: flex;
+}
+
+.child-question {
+	margin-left: 20px;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	display: flex;
+}
+
+.question-title {
+	font-size: 1.5rem;
+	font-weight: bold;
+	min-width: 110px;
+}
+
+.question-content {
+	display: flex;
+	align-items: end;
+}
+
+.question-content .question-category-name {
+	font-weight: bold;
+	font-size: 1.4rem;
+}
+
+.question-content span.necessity_yn {
+	font-weight: bold;
+}
+
+.parent-question-selections {
+	margin-left: 50px;
+	word-break: keep-all;
+}
+
+.child-question-selections {
+	margin-left: 20px;
+	word-break: keep-all;
+}
+
+.child-question-selections textarea {
+	width: 90%;
+}
+
+.parent-question-selection:hover, .child-question-selection:hover {
+	cursor: pointer;
+}
+
+.parent-question-selection {
+	width: 19%;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	margin-right: 40px;
+	word-break: keep-all;
+}
+
+.parent-question-selections textarea.content {
+	width: 90%;
+}
+
+.child-question-selection {
+	width: 28%;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	margin-right: 40px;
+	word-break: keep-all;
+}
+
+.directionBtn {
+	width: 50%;
+	margin: 50px auto;
+	display: flex;
+	justify-content: space-around;
+}
+
+#surveyRegistBtn {
+	
+}
+
+#surveyInfoShow {
+	margin-top: 20px;
+	width: 50%;
+}
+
+#surveyInfoShow .surveyInfoToManageUpdateDeleteBtn {
+	text-align: right;
+	margin-right: 20px;
+}
+
+#surveyInfoForm>div:nth-child(1) {
+	margin: auto auto;
+}
+
+#surveyInfoForm>div:nth-child(2) {
+	text-align: right;
+	margin: auto auto;
+}
+
+#surveyInfoForm .infoDiv {
+	max-width: 700px;
+	margin-bottom: 10px;
+}
+
+#surveyInfoForm .infoDiv .submitCntNum {
+	max-width: 230px;
+}
+
+select option[value=""][disabled] {
+	display: none;
+}
+
+#surveyInfoForm .infoDiv #winOpenDt {
+	max-width: 345px;
+}
+
+#surveyInfoForm .infoDiv #subject {
+	max-width: 230px;
+}
+
+#surveyInfoForm .infoDiv #subjects {
+	margin-top: 5px;
+}
+
+#surveyInfoForm .infoDiv #subjects .divAdded {
+	display: inline-block;
+	border: 1px green solid;
+	border-radius: 5px;
+	padding-left: 2px;
+	padding-right: 2px;
+}
+
+#surveyInfoForm .infoDiv #subjects .divAdded .removeSubject {
+	font-weight: bold;
+	padding: 0 5px;
+	color: red;
+	margin-left: 10px;
+}
+
+#surveyInfoForm .infoDiv #subjects .divAdded .removeSubject:hover {
+	color: yellow;
+	cursor: pointer;
+}
+
+#surveyInfoForm .survey-period {
+	display: flex;
+	justify-content: space-around;
+}
+
+#questionInfoForm {
+	height: auto;
+}
+
+#questionInfoForm #addQuestionBtn {
+	position: sticky;
+	top: 0;
+	left: 0;
+	z-index: 10;
+	margin-bottom: 10px;
+}
+
+.questionNumNRemoveBtn {
+	display: flex;
+	justify-content: space-between;
+}
+
+.questionNumNRemoveBtn .questionNumDiv {
+	font-size: 24px;
+	font-weight: bold;
+}
+
+.questionNumNRemoveBtn .questionNumDiv .questionNum,
+	.questionNumNRemoveBtn .questionNumDiv .childQuestionNum {
+	display: inline-block;
+	font-weight: bold;
+}
+
+.questionNumNRemoveBtn .questionRemoveBtn {
+	padding: 0 10px 4px 10px;
+	font-size: 1.7rem;
+	line-height: 0.9;
+}
+
+.questionInfoDiv {
+	display: flex;
+}
+
+.questionInfoDiv .questionInfo {
+	margin-right: 50px;
+	width: 75%;
+}
+
+.questionContent {
+	width: 80%;
+}
+
+.questionInfoBox .questionInfoBoxBody {
+	background-color: aqua;
+}
+
+.selectionInfoBox .selectionBtns {
+	margin-bottom: 10px;
+}
+
+.selectionsInfoBox .selectionRemoveBtn {
+	padding: 0 4px 2px 4px;
+	font-size: 1.5rem;
+	line-height: 0.9;
+}
+
+.childQuestionInfoBox {
+	margin-top: 5px;
+	margin-bottom: 5px !important;
+	margin-left: 50px;
+}
+
+.childQuestionInfoBox .childQuestionInfoBoxBody {
+	background-color: aquamarine;
+}
+
+.menusDiv {
+	display: inline-block;
+	margin-right: 15px;
+	border: 1px solid gray;
+	background-color: aquamarine;
+}
+
+/* 메뉴 관리 페이지 */
+#authors {
+	margin-top: 5px;
+}
+
+#authors .divAdded {
+	display: inline-block;
+	border: 1px green solid;
+	border-radius: 5px;
+	padding-left: 2px;
+	padding-right: 2px;
+}
+
+#authors .divAdded .removeSubject {
+	font-weight: bold;
+	padding: 0 5px;
+	color: red;
+	margin-left: 10px;
+}
+
+#authors .divAdded .removeSubject:hover {
+	color: yellow;
+	cursor: pointer;
+}
+
+.authorCheckBox {
+	display: inline-block;
+	margin-right: 10px;
+}
+
+.labelInputDiv {
+	display: inline-block;
+}
+
+.labelInputDivMenuTitle {
+	width: 20%;
+	margin-right: 1%;
+}
+
+.labelInputDivMenuForm {
+	width: 20%;
+	margin-right: 1%;
+}
+
+.labelInputDivMenuUrl {
+	width: 40%;
+}
+
+.labelInputDivMenuAuthor {
+	width: 40%;
+}
+
+/* sns */
+.snsSearchDivParent {
+	height: auto;
+}
+
+#snsSearchDiv {
+	width: 500px;
+	margin: 20px auto;
+	text-align: center;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	background-color: lavender;
+	border-radius: 10px;
+	position: sticky;
+	top: 0;
+	z-index: 10;
+}
+
+#snsSearchDiv #snsSearchBtn {
+	margin-right: 50px;
+}
+
+#snsContainer {
+	margin: auto auto;
+	padding: 10px;
+	width: 600px;
+	background-color: aquamarine;
+}
+
+#snsList {
+	overflow: scroll;
+	max-height: 800px;
+	min-height: 400px;
+}
+
+.snsPost {
+	margin: 40px;
+	min-height: 200px;
+	border: 1px solid darkgray;
+	background-color: aqua;
+}
+
+.snsPost .writer {
+	font-weight: bold;
+}
+
+.snsPost .content {
+	min-height: 200px;
+}
+
+.snsPost .snsUpdateDeleteBtns {
+	text-align: right;
+}
+
+#snsInput {
+	text-align: center;
+}
+
+.snsPost .comments .snsCommentsUpdateDeleteBtns {
+	text-align: right;
+}
+
+.ck.ck-reset.ck-editor.ck-rounded-corners {
+	margin: auto auto;
+}
+
+#snsInput .ck-editor__editable {
+	height: 400px;
+}
+
+#snsList .ck-editor, #snsList .ck-editor__editable {
+	width: 479px;
+}
+
+#snsList .ck-editor__editable {
+	min-height: 200px;
+}
+
+#snsContainer img {
+	max-width: 400px;
+}
+
+#snsContainer a img {
+	width: 21px;
+}
+
+#snsList .snsPost .comments textarea {
+	width: 65%;
+}
+
+#commCdContainer #commCdSearchDiv {
+	width: 500px;
+	padding: 3px;
+	text-align: center;
+	background-color: lavender;
+	border-radius: 10px;
+	position: sticky;
+	top: 0;
+}
+
+#normal-tab-pane {
+	display: flex;
+	justify-content: space-between;
+}
+
+.groupCd:hover,
+.detailCd:hover {
+	cursor: pointer;
+}
+#myTabContent input[type=checkbox] {
+	margin-right: 5px;
+}
+
+#commCdContainer .groupCd {
+	width: 35%;
+}
+
+#commCdContainer .detailCd {
+	width: 60%
+}
+
+#myTabContent .categoryType {
+	display: inline-block;
+}
+
+
+#myTabContent table {
+	margin: 0;
+	width: 100;
+}
+
+#myTabContent .tbodyTable {
+	height: 300px;
+	overflow-y: auto;
+	width: 100%
+}
+
+#myTabContent .tbodyTable::-webkit-scrollbar {
+	display: none;
+}
+
+.choosedTr,
+.choosed {
+	background-color: yellow !important;
+}
+
+#myTabContent .checkDeleteBtn {
+	position: absolute;
+	right: 0;
+}
+
+#tree-tab-pane .groupCd {
+	display:flex;
+	justify-content: space-between;
+	width: 300px;
+	background-color: aquamarine;
+}
+
+#tree-tab-pane .groupCd .plusMinus:hover {
+	cursor: pointer;
+}
+
+#tree-tab-pane .detailCdDiv {
+	margin-left: 50px;
+	display: none;
+}
+
+#tree-tab-pane .detailCdDiv .detailCd {
+	display:flex;
+	justify-content: space-between;
+	width: 500px;
+	background-color: aqua;
+}
+
+#tree-tab-pane .detailCdDiv .detailCd .chkBox {
+	width: 5%;
+	text-align:center;
+}
+
+#tree-tab-pane .detailCdDiv .detailCd .code {
+	width: 20%;
+}
+
+#tree-tab-pane .detailCdDiv .detailCd .codeName {
+	width: 35%;
+}
+
+#tree-tab-pane .detailCdDiv .detailCd .note {
+	width: 35%;
+}
+
+#tree-tab-pane .detailCdDiv .detailCd .note {
+	width: 35%;
+}

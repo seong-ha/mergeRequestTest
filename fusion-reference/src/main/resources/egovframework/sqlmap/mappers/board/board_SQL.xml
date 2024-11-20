@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.fusion.board.service.BoardMapper">
+	
+	<!-- 일반 게시물리스트 조회 -->
+	<select id="getBoardList"
+			resultType="boardVO"
+			parameterType="searchVO">
+		SELECT BOARD_NUM
+		     , BOARD_NO
+		     , TITLE
+		     , BOARD_CNT
+		     , REGIST_DT
+		     , PARENT_NO
+		     , RE_LEV
+		     , MEMBER_NO
+		     , ID
+		     , CONTENT
+		     , TOTAL
+		FROM (
+		       SELECT ROWNUM AS BOARD_NUM
+		            , C.*
+		            , COUNT(*) OVER() AS TOTAL
+		         FROM (
+		                SELECT A.BOARD_NO
+		                     , A.TITLE
+		                     , A.BOARD_CNT
+		                     , A.TYPE
+		                     , A.REGIST_DT
+		                     , A.DEL_YN
+		                     , A.PARENT_NO
+		                     , LEVEL AS RE_LEV
+		                     , A.MEMBER_NO
+		                     , B.ID
+		                     , A.CONTENT
+		                  FROM BOARD A LEFT OUTER JOIN MEMBER B
+		                    ON B.MEMBER_NO = A.MEMBER_NO
+		                WHERE 
+								<if test="srchText != null and srchType.equals('all')">
+								     (
+					                   B.ID LIKE '%' || #{srchText} || '%'
+					                   OR A.TITLE LIKE '%' || #{srchText} || '%'
+					                   OR A.CONTENT LIKE '%' || #{srchText} || '%'
+					                 )
+					                 AND
+					            </if>
+					            <if test="srchText != null and srchType.equals('writer')">
+					                B.ID LIKE '%' || #{srchText} || '%'
+					                AND
+					            </if>
+					            <if test="srchText != null and srchType.equals('title')">
+					                A.TITLE LIKE '%' || #{srchText} || '%'
+					                AND
+					            </if>
+					            <if test="srchText != null and srchType.equals('content')">
+					                A.CONTENT LIKE '%' || #{srchText} ||'%'
+					                AND
+					            </if>
+		                  A.MENU_TYPE = #{menuType}
+		                  AND A.TYPE = 'normal'
+		                  AND A.DEL_YN = 'N'
+		                START WITH A.PARENT_NO = 0
+		                CONNECT BY PRIOR A.BOARD_NO = A.PARENT_NO
+		              ) C
+		       START WITH C.PARENT_NO = 0
+		       CONNECT BY PRIOR C.BOARD_NO = C.PARENT_NO
+		       ORDER SIBLINGS BY C.BOARD_NO DESC, C.RE_LEV ASC
+		         )
+		<![CDATA[
+		WHERE BOARD_NUM >= #{cntPerPage} * (#{nowPage} - 1) + 1
+		  AND BOARD_NUM <= #{cntPerPage} * #{nowPage}
+		]]>
+	</select>
+	
+	<select id="getNoticeList" resultType="boardVO" parameterType="searchVO">
+		SELECT A.BOARD_NO
+	         , A.TITLE
+	         , A.MEMBER_NO
+	         , B.ID
+	         , A.BOARD_CNT
+	         , A.REGIST_DT
+		  FROM BOARD A INNER JOIN MEMBER B
+		    ON A.MEMBER_NO = B.MEMBER_NO
+		 WHERE A.MENU_TYPE = #{menuType}
+		   AND A.TYPE = 'notice'
+		   AND A.DEL_YN = 'N'
+		ORDER BY A.BOARD_NO DESC
+	</select>
+
+	<insert id="insBoardPost" parameterType="BoardVO">
+		INSERT INTO BOARD (
+		                    BOARD_NO
+		                  , TITLE
+		                  , MEMBER_NO
+		                  , BOARD_CNT
+		                  , TYPE
+		                  , REGIST_DT
+		                  , UPDATE_DT
+		                  , DEL_YN
+		                  , PARENT_NO
+		                  , LIKE_CNT
+		                  , CONTENT
+		                  , MENU_TYPE
+		                  )
+		VALUES (
+			 	 SEQ_BOARD.NEXTVAL
+			   , #{title}
+			   , #{member_no}
+			   , 0
+			   , #{type}
+			   , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+			   , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+			   ,'N'
+			   , #{parent_no}
+			   , 0
+			   , #{content}
+			   , #{menu_type}
+			   )
+	</insert>
+
+	<select id="getBoardPost" resultType="BoardVO" parameterType="BoardVO">
+	    SELECT A.BOARD_NO
+           	 , A.TITLE
+           	 , A.CONTENT
+           	 , A.MEMBER_NO
+           	 , B.ID
+           	 , A.BOARD_CNT
+           	 , A.TYPE
+           	 , A.PARENT_NO
+           	 , A.MENU_TYPE
+           	 , LEVEL AS RE_LEV
+          FROM BOARD A LEFT OUTER JOIN MEMBER B
+            ON A.MEMBER_NO = B.MEMBER_NO
+         WHERE A.DEL_YN = 'N'
+           AND A.BOARD_NO = #{board_no}
+           AND A.MENU_TYPE = #{menu_type}
+        START WITH PARENT_NO = 0
+		CONNECT BY PRIOR A.BOARD_NO = A.PARENT_NO
+           
+	</select>
+
+	<select id="chkViewLog" parameterType="boardVO" resultType="Integer">
+		SELECT VIEW_LOG_NO
+		  FROM VIEW_LOG
+		 WHERE MEMBER_NO = #{member_no}
+		   AND BOARD_NO = #{board_no}
+		   AND MENU_TYPE = #{menu_type}
+		   AND REGIST_DT LIKE TO_CHAR(SYSDATE, 'YYYY-MM-DD') || '%'
+	</select>
+
+	<insert id="insViewLog" parameterType="boardVO">
+			INSERT INTO VIEW_LOG(
+						          VIEW_LOG_NO
+						        , BOARD_NO
+						        , MEMBER_NO
+						        , REGIST_DT
+						        , MENU_TYPE
+						        )
+						VALUES (
+								 SEQ_VIEW_LOG.NEXTVAL
+							   , #{board_no}
+							   , #{member_no}
+							   , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+							   , #{menu_type}
+							   )
+	</insert>
+
+	<update id="updBoardCnt" parameterType="BoardVO">
+		UPDATE BOARD
+		   SET BOARD_CNT = (BOARD_CNT + 1)
+		 WHERE MENU_TYPE = #{menu_type} 
+		   AND BOARD_NO = #{board_no}
+	</update>
+	
+	<update id="updBoardPost" parameterType="BoardVO">
+		UPDATE BOARD
+		   SET TITLE = #{title}
+		     , CONTENT = #{content}
+		     , UPDATE_DT = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+		 WHERE BOARD_NO = #{board_no}
+	</update>
+
+	<update id="delBoardPost" parameterType="BoardVO" statementType="CALLABLE">
+		{ CALL BOARD_DEL_PROC(
+		                       #{board_no}
+		                     )
+		                   }
+	</update>
+	
+	<insert id="insComment" parameterType="egovframework.fusion.board.vo.CommentsVO">
+        INSERT INTO COMMENTS
+        VALUES (
+                 SEQ_COMMENTS.NEXTVAL
+               , #{board_no}
+               , #{member_no}
+               , #{content}
+               , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+               , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+               , 'N'
+               , #{parent_no}
+               )
+	</insert>
+	
+	<select id="getCommentsList" parameterType="boardVO"
+			resultType="egovframework.fusion.board.vo.CommentsVO">
+		SELECT C.*
+		     , COUNT(*) OVER() AS TOTAL
+		FROM (
+		       SELECT ROWNUM AS COMMENTS_NUM
+		            , COMMENTS_NO
+		            , A.BOARD_NO
+		            , A.MEMBER_NO
+		            , B.ID
+		            , A.CONTENT
+		            , A.REGIST_DT
+		            , A.UPDATE_DT
+		            , A.DEL_YN
+		            , A.PARENT_NO
+		            , LEVEL AS RE_LEV
+		         FROM COMMENTS A INNER JOIN MEMBER B
+		           ON A.MEMBER_NO = B.MEMBER_NO
+		        WHERE A.BOARD_NO = #{board_no}
+		        START WITH PARENT_NO = 0
+		        CONNECT BY PRIOR A.COMMENTS_NO = A.PARENT_NO
+		     ) C
+		 START WITH PARENT_NO = 0
+		 CONNECT BY PRIOR C.COMMENTS_NO = C.PARENT_NO
+		 ORDER SIBLINGS BY C.COMMENTS_NO ASC, C.RE_LEV ASC
+	</select>
+	
+	<update id="updComment" parameterType="egovframework.fusion.board.vo.CommentsVO">
+		UPDATE COMMENTS
+		   SET CONTENT = #{content},
+		       UPDATE_DT = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+		 WHERE COMMENTS_NO = #{comments_no}
+	</update>
+	
+	<update id="delComment" parameterType="egovframework.fusion.board.vo.CommentsVO">
+		UPDATE COMMENTS
+		   SET DEL_YN = 'Y',
+		       UPDATE_DT = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+		 WHERE COMMENTS_NO = #{comments_no}
+	</update>
+
+	<update id="delBoardPostChild" parameterType="boardVO" statementType="CALLABLE">
+		{ CALL CHILD_BOARD_CMMT_DEL_PROC(
+		                       			  #{board_no}
+		                                )
+		                              }
+	</update>
+	
+	<select id="getPopupNotice" resultType="boardVO" parameterType="searchVO">
+		SELECT BOARD_NO
+		     , TITLE
+		     , CONTENT
+		FROM BOARD 
+		WHERE BOARD_NO = (
+		                   SELECT MAX(BOARD_NO)
+		                     FROM BOARD
+		                    WHERE TYPE = 'notice'
+		                      AND MENU_TYPE = #{menuType}
+		                      AND DEL_YN = 'N'
+		                   )
+	</select>
+	
+	<select id="selectIntegSrchBoardList" parameterType="searchVO" resultType="boardVO">
+		SELECT A.BOARD_NO
+	         , A.TITLE
+	         , B.ID
+	         , A.CONTENT
+	         , A.MENU_TYPE
+	         , (
+	             SELECT DISTINCT MENU_FORM
+	               FROM MENU
+	              WHERE MENU_TYPE = A.MENU_TYPE
+	            ) AS MENU_FORM
+	      FROM BOARD A INNER JOIN MEMBER B
+	        ON A.MEMBER_NO = B.MEMBER_NO
+	     WHERE A.MENU_TYPE = #{menuType}
+	       AND A.DEL_YN = 'N'
+	   <if test="srchText != null and srchType.equals('all')">
+	       AND (
+		             B.ID LIKE '%' || #{srchText} || '%'
+				  OR A.TITLE LIKE '%' || #{srchText} || '%'
+				  OR A.CONTENT LIKE '%' || #{srchText} || '%'
+			   )
+	   </if>
+	   <if test="srchText != null and srchType.equals('writer')">
+	       AND B.ID LIKE '%' || #{srchText} || '%'
+	   </if>
+	   <if test="srchText != null and srchType.equals('title')">
+	       AND A.TITLE LIKE '%' || #{srchText} || '%'
+	   </if>
+	   <if test="srchText != null and srchType.equals('content')">
+	       AND A.CONTENT LIKE '%' || #{srchText} || '%'
+	   </if>
+	  ORDER BY A.BOARD_NO
+	</select>
+	
+</mapper>

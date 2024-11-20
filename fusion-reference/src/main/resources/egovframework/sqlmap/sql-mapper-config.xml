@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<settings>
+		<setting name="cacheEnabled" value="false" />
+		<setting name="jdbcTypeForNull" value="NULL" />
+	</settings>
+    <typeAliases>
+		<typeAlias alias="boardVO" type="egovframework.fusion.board.vo.BoardVO"/>
+		<typeAlias alias="searchVO" type="egovframework.fusion.board.vo.SearchVO"/>
+		<typeAlias alias="surveyVO" type="egovframework.fusion.survey.vo.SurveyVO"/>
+		<typeAlias alias="questionVO" type="egovframework.fusion.survey.vo.QuestionVO"/>
+		<typeAlias alias="selectionVO" type="egovframework.fusion.survey.vo.SelectionVO"/>
+		<typeAlias alias="participateVO" type="egovframework.fusion.survey.vo.ParticipateVO"/>
+		<typeAlias alias="answerVO" type="egovframework.fusion.survey.vo.AnswerVO"/>
+		<typeAlias alias="menuVO" type="egovframework.fusion.menu.vo.MenuVO"/>
+		<typeAlias alias="authorVO" type="egovframework.fusion.author.vo.AuthorVO"/>
+		<typeAlias alias="commCdVO" type="egovframework.fusion.commCd.vo.CommCdVO"/>
+    </typeAliases>
+</configuration>

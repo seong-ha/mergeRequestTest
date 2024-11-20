@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.fusion.sns.service.SnsMapper">
+	<insert id="insertSnsPost" parameterType="boardVO">
+		<selectKey keyProperty="board_no" keyColumn="board_no" resultType="Integer" order="BEFORE">
+			SELECT SEQ_BOARD.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO BOARD (
+		                    BOARD_NO
+		                  , TITLE
+		                  , MEMBER_NO
+		                  , BOARD_CNT
+		                  , TYPE
+		                  , REGIST_DT
+		                  , UPDATE_DT
+		                  , DEL_YN
+		                  , PARENT_NO
+		                  , LIKE_CNT
+		                  , CONTENT
+		                  , MENU_TYPE
+		                  )
+		VALUES (
+			 	 #{board_no}
+			   , #{title}
+			   , #{member_no}
+			   , 0
+			   , #{type}
+			   , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+			   , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+			   ,'N'
+			   , #{parent_no}
+			   , 0
+			   , #{content}
+			   , #{menu_type}
+			   )
+	</insert>
+	
+	<select id="selectSnsPost" parameterType="boardVO" resultType="boardVO">
+		SELECT A.BOARD_NO
+		     , A.MEMBER_NO
+		     , A.BOARD_CNT
+		     , A.REGIST_DT
+		     , A.LIKE_CNT
+		     , A.CONTENT
+		     , A.MENU_TYPE
+		     , B.ID
+		  FROM BOARD A INNER JOIN MEMBER B
+		    ON A.MEMBER_NO = B.MEMBER_NO
+		 WHERE BOARD_NO = #{board_no}
+	</select>
+	
+	<select id="selectSnsPostList" parameterType="searchVO" resultType="boardVO">
+		SELECT D.BOARD_NUM
+		     , D.BOARD_NO
+		     , D.BOARD_CNT
+		     , D.REGIST_DT
+		     , D.MEMBER_NO
+		     , D.ID
+		     , D.MENU_TYPE
+		     , D.CONTENT
+		     , D.LIKE_CNT
+		     , D.TOTAL
+		     , (
+			       SELECT MOD(CNT, 2) AS IS_LIKED
+					 FROM (
+						    SELECT COUNT(1) AS CNT
+						 	  FROM LIKE_LOG
+					         WHERE BOARD_NO = D.BOARD_NO
+							   AND MEMBER_NO = #{memberNo}
+					       )		     
+		       ) AS IS_LIKED
+
+		  FROM (
+				 SELECT C.*
+				      , COUNT(*) OVER() AS TOTAL
+				   FROM (
+						  SELECT ROWNUM AS BOARD_NUM 
+							   , A.*
+							   , B.ID
+							FROM BOARD A INNER JOIN MEMBER B
+							  ON A.MEMBER_NO = B.MEMBER_NO
+						   WHERE MENU_TYPE = #{menuType}
+							 AND A.DEL_YN = 'N'
+					    ORDER BY BOARD_NO DESC
+				         ) C
+		       ) D
+		      <![CDATA[
+		 WHERE D.BOARD_NUM >= #{cntPerPage} * (#{nowPage} - 1) + 1
+		   AND D.BOARD_NUM <= #{cntPerPage} * #{nowPage}
+		     ]]>
+	</select>
+	
+	<select id="selectMoreSnsPostList" parameterType="searchVO" resultType="boardVO">
+		SELECT D.BOARD_NUM
+		     , D.BOARD_NO
+		     , D.BOARD_CNT
+		     , D.REGIST_DT
+		     , D.MEMBER_NO
+		     , D.ID
+		     , D.MENU_TYPE
+		     , D.CONTENT
+		     , D.LIKE_CNT
+		     , D.TOTAL
+		     , (
+			       SELECT MOD(CNT, 2) AS IS_LIKED
+					 FROM (
+						    SELECT COUNT(1) AS CNT
+						 	  FROM LIKE_LOG
+					         WHERE BOARD_NO = D.BOARD_NO
+							   AND MEMBER_NO = #{memberNo}
+					       )		     
+		       ) AS IS_LIKED
+		  FROM (
+				 SELECT C.*
+				      , COUNT(*) OVER() AS TOTAL
+				   FROM (
+						  SELECT ROWNUM AS BOARD_NUM 
+							   , A.*
+							   , B.ID
+							FROM BOARD A INNER JOIN MEMBER B
+							  ON A.MEMBER_NO = B.MEMBER_NO
+						   WHERE MENU_TYPE = #{menuType}
+							 AND A.DEL_YN = 'N'
+						 <if test="srchType != null and srchType.equals('writer')">
+						 	 AND B.ID LIKE '%' || #{srchText} || '%'
+						 </if>
+						 <if test="srchType != null and srchType.equals('content')">
+						 	<![CDATA[
+						 	 AND REGEXP_REPLACE(A.CONTENT, '<[^>]*>|\&([^;])*;', '') LIKE '%' || #{srchText} ||'%'
+						 	 ]]>
+						 </if>
+					    ORDER BY BOARD_NO DESC
+				         ) C
+		       ) D
+		      <![CDATA[
+		 WHERE D.BOARD_NUM >= #{cntPerPage} * (#{nowPage} - 1) + 1 + #{totalChange}
+		   AND D.BOARD_NUM <= #{cntPerPage} * #{nowPage} + #{totalChange}
+		     ]]>
+	</select>
+	
+	<update id="deleteSnsPost" parameterType="boardVO">
+		{ CALL BOARD_DEL_PROC(
+		                       #{board_no}
+		                     )
+		                   }
+	</update>
+	
+	<insert id="insDeletedFiles" parameterType="java.util.List">
+		INSERT INTO FILES (
+		                    FILES_NO
+		                  , BOARD_NO
+		                  , SAVE_NAME
+		                  , PATH
+		                  , REGIST_DT
+		                  , UPDATE_DT
+		                  , DEL_YN
+		                  )
+		          VALUES
+		                <foreach collection="list" item="list" separator=",">
+			                (
+			                  SEQ_FILES.NEXTVAL
+			                , #{list.board_no}
+			                , #{list.save_name}
+			                , #{list.path}
+			                , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+			                , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+			                , 'Y'
+			                )
+		                </foreach>	
+	</insert>
+	
+	<update id="updateSnsPost" parameterType="boardVO">
+		UPDATE BOARD
+		   SET CONTENT = #{content}
+		     , UPDATE_DT = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+		 WHERE BOARD_NO = #{board_no}
+	</update>
+	
+	<select id="selectSnsCommentsList" parameterType="boardVO" resultType="egovframework.fusion.board.vo.CommentsVO">
+		SELECT C.COMMENTS_NO
+	         , C.BOARD_NO
+	         , C.MEMBER_NO
+	         , C.ID
+	         , C.CONTENT
+	         , C.REGIST_DT
+	         , C.UPDATE_DT
+	         , COUNT(*) OVER() AS TOTAL
+	      FROM (
+				 SELECT A.*
+				      , B.ID
+				   FROM COMMENTS A INNER JOIN MEMBER B
+				     ON A.MEMBER_NO = B.MEMBER_NO
+				  WHERE A.BOARD_NO = #{board_no}
+				    AND A.DEL_YN = 'N'
+               ) C
+	  ORDER BY C.COMMENTS_NO ASC
+	</select>
+	
+	<insert id="insertSnsComments" parameterType="egovframework.fusion.board.vo.CommentsVO">
+        INSERT INTO COMMENTS (
+        					   COMMENTS_NO
+        					 , BOARD_NO
+        					 , MEMBER_NO
+        					 , CONTENT
+        					 , REGIST_DT
+        					 , UPDATE_DT
+        					 , DEL_YN
+        					 , PARENT_NO
+                             )
+			          VALUES (
+			                   SEQ_COMMENTS.NEXTVAL
+			                 , #{board_no}
+			                 , #{member_no}
+			                 , #{content}
+			                 , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+			                 , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+			                 , 'N'
+			                 , #{parent_no}
+			                 )
+	</insert>
+	
+	<update id="updateSnsComments" parameterType="egovframework.fusion.board.vo.CommentsVO">
+		UPDATE COMMENTS
+		   SET CONTENT = #{content}
+		     , UPDATE_DT = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+		 WHERE COMMENTS_NO = #{comments_no}
+	</update>
+	
+	<update id="deleteSnsComments" parameterType="egovframework.fusion.board.vo.CommentsVO">
+		UPDATE COMMENTS
+		   SET DEL_YN = 'Y'
+		     , UPDATE_DT = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+		 WHERE COMMENTS_NO = #{comments_no}
+	</update>
+	
+</mapper>
