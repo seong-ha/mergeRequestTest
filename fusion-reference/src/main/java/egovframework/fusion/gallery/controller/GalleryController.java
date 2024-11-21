@@ -59,6 +59,7 @@ public class GalleryController {
 	
 	private String path = "C:\\uploadFiles";
 	private String t_path = path + "\\thumbnail";
+	private String test_path = t_path + "\\test";
 	
 	/*
 	 * 갤러리 메인페이지 이동
