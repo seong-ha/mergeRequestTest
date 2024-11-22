@@ -74,8 +74,8 @@ public class GalleryController {
 		// searchVO 초기값 생성
 		if (searchVO.getNowPage() == null && searchVO.getCntPerPage() == null) {
 			searchVO.setNoPageChoose(true);	// 페이징 선택 안했을 시(= 메뉴 첫접근 => 메뉴 접근 기록 추가)
-			searchVO.setNowPage(1);
-			searchVO.setCntPerPage(8);
+			searchVO.setNowPage(2);
+			searchVO.setCntPerPage(3);
 		} else if (searchVO.getNowPage() == null) {
 			searchVO.setNoPageChoose(true);	// 페이징 선택 안했을 시(= 메뉴 첫접근 => 메뉴 접근 기록 추가)
 			searchVO.setNowPage(1);
