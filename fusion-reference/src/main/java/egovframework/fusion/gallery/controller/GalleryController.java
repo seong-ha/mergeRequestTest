@@ -58,8 +58,6 @@ public class GalleryController {
 	
 	private String path = "C:\\uploadFiles";
 	private String t_path = path + "\\thumbnail";
-	private String test_path = t_path + "\\test!";
-	private String test_path2 = test_path + "\\test!!";
 	
 	/*
 	 * 갤러리 메인페이지 이동
@@ -75,13 +73,13 @@ public class GalleryController {
 		if (searchVO.getNowPage() == null && searchVO.getCntPerPage() == null) {
 			searchVO.setNoPageChoose(true);	// 페이징 선택 안했을 시(= 메뉴 첫접근 => 메뉴 접근 기록 추가)
 			searchVO.setNowPage(1);
-			searchVO.setCntPerPage(10);
+			searchVO.setCntPerPage(8);
 		} else if (searchVO.getNowPage() == null) {
 			searchVO.setNoPageChoose(true);	// 페이징 선택 안했을 시(= 메뉴 첫접근 => 메뉴 접근 기록 추가)
-			searchVO.setNowPage(4);
+			searchVO.setNowPage(1);
 		} else if (searchVO.getCntPerPage() == null) {
 			searchVO.setNoPageChoose(false);// 페이징 선택 했을 시(= 메뉴 첫접근X => 메뉴 접근 기록 추가X)
-			searchVO.setCntPerPage(10);
+			searchVO.setCntPerPage(8);
 		}
 		
 		// 게시판 종류 부여
@@ -111,9 +109,9 @@ public class GalleryController {
 			}
 			PagingVO pagingVO = new PagingVO(total, searchVO.getNowPage(), searchVO.getCntPerPage());
 			
-			model.addAttribute("boardListms", boardList);
-			model.addAttribute("thumbList1", thumbList);
-			model.addAttribute("tagListms", tagList);
+			model.addAttribute("boardList", boardList);
+			model.addAttribute("thumbList", thumbList);
+			model.addAttribute("tagList", tagList);
 			model.addAttribute("paging", pagingVO);
 			model.addAttribute("search", searchVO);
 			
