@@ -112,7 +112,7 @@ public class GalleryController {
 			PagingVO pagingVO = new PagingVO(total, searchVO.getNowPage(), searchVO.getCntPerPage());
 			
 			model.addAttribute("boardListms", boardList);
-			model.addAttribute("thumbList", thumbList);
+			model.addAttribute("thumbList1", thumbList);
 			model.addAttribute("tagListms", tagList);
 			model.addAttribute("paging", pagingVO);
 			model.addAttribute("search", searchVO);
