@@ -34,7 +34,6 @@ import egovframework.fusion.gallery.vo.LikeVO;
 import egovframework.fusion.gallery.vo.TagVO;
 import egovframework.fusion.member.controller.MemberController;
 import egovframework.fusion.menu.service.MenuService;
-import egovframework.fusion.menu.vo.MenuVO;
 import egovframework.fusion.paging.vo.PagingVO;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.geometry.Positions;
