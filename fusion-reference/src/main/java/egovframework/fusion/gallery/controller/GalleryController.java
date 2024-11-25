@@ -67,7 +67,7 @@ public class GalleryController {
 	 */
 	@RequestMapping(value = "/gallery/galleryList.do", method = RequestMethod.GET)
 	public String initGallerys(String menuType, SearchVO searchVO, Model model) {
-		System.out.println("local에서 sub-master와 merge해서 push해보자");
+		System.out.println("local에서 sub-master와 merge해서 push해보자, 율하바른정형외과");
 		
 		// searchVO 초기값 생성
 		if (searchVO.getNowPage() == null && searchVO.getCntPerPage() == null) {
