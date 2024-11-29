@@ -85,6 +85,8 @@ public class GalleryController {
 		// 게시판 종류 부여
 		searchVO.setMenuType(menuType);
 		
+		System.out.println("서울탑재활정형외과 별로");
+		
 		try {
 			// 게시물 리스트 가져오기
 			List<BoardVO> boardList = galleryService.getBoardList(searchVO);
