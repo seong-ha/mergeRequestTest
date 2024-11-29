@@ -57,7 +57,7 @@ public class GalleryController {
 	MenuService menuService;
 	
 	private String path = "C:\\uploadFiles";
-	private String t_path = path + "\\thumbnail";
+	private String t_path = path + "\\thumbnailbb";
 	
 	/*
 	 * 갤러리 메인페이지 이동
