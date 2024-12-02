@@ -82,6 +82,13 @@ public class GalleryController {
 			searchVO.setCntPerPage(8);
 		}
 		
+		
+		
+		
+		
+		
+		
+		
 		// 게시판 종류 부여
 		searchVO.setMenuType(menuType);
 		
