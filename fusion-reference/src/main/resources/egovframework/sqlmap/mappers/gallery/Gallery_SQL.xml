@@ -3,7 +3,7 @@
 <mapper namespace="egovframework.fusion.gallery.service.GalleryMapper">
 	<!-- <select id="getGalleryList" parameterType="boardVO" resultType="boardVO">
 		
-	</select> -->
+	</select>dd -->
 
 	<insert id="insGalleryBoard" parameterType="boardVO">
 		<selectKey keyProperty="board_no" keyColumn="BOARD_NO" resultType="Integer" order="BEFORE">
