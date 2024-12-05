@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.fusion.menu.service.MenuMapper">
+
+	<resultMap id="menuList" type="egovframework.fusion.menu.vo.MenuVO">
+		<id property="menu_no" column="menu_no"/>
+		<result property="menu_name" column="menu_name"/>
+		<result property="menu_url" column="menu_url"/>
+		<result property="menu_type" column="menu_type"/>
+		
+		<collection property="authorList" column="menu_no = menu_no" javaType="List" 
+					ofType="Integer" select="selectMenuAuthorList"/>
+	</resultMap>
+	
+	<resultMap id="monthStatistics" type="egovframework.fusion.menu.vo.MonthVO">
+		<id property="menu_name" column="menu_name"/>
+		<result property="jan" column="1월"/>
+		<result property="feb" column="2월"/>
+		<result property="mar" column="3월"/>
+		<result property="apr" column="4월"/>
+		<result property="may" column="5월"/>
+		<result property="jun" column="6월"/>
+		<result property="jul" column="7월"/>
+		<result property="aug" column="8월"/>
+		<result property="sep" column="9월"/>
+		<result property="oct" column="10월"/>
+		<result property="nov" column="11월"/>
+		<result property="dec" column="12월"/>
+	</resultMap>
+	
+	<resultMap id="dayStatistics" type="egovframework.fusion.menu.vo.DayVO">
+		<id property="menu_name" column="menu_name"/>
+		<result property="day1" column="1일"/>
+		<result property="day2" column="2일"/>
+		<result property="day3" column="3일"/>
+		<result property="day4" column="4일"/>
+		<result property="day5" column="5일"/>
+		<result property="day6" column="6일"/>
+		<result property="day7" column="7일"/>
+		<result property="day8" column="8일"/>
+		<result property="day9" column="9일"/>
+		<result property="day10" column="10일"/>
+		<result property="day11" column="11일"/>
+		<result property="day12" column="12일"/>
+		<result property="day13" column="13일"/>
+		<result property="day14" column="14일"/>
+		<result property="day15" column="15일"/>
+		<result property="day16" column="16일"/>
+		<result property="day17" column="17일"/>
+		<result property="day18" column="18일"/>
+		<result property="day19" column="19일"/>
+		<result property="day20" column="20일"/>
+		<result property="day21" column="21일"/>
+		<result property="day22" column="22일"/>
+		<result property="day23" column="23일"/>
+		<result property="day24" column="24일"/>
+		<result property="day25" column="25일"/>
+		<result property="day26" column="26일"/>
+		<result property="day27" column="27일"/>
+		<result property="day28" column="28일"/>
+		<result property="day29" column="29일"/>
+		<result property="day30" column="30일"/>
+		<result property="day31" column="31일"/>
+	</resultMap>
+	
+	<resultMap id="hourStatistics" type="egovframework.fusion.menu.vo.HourVO">
+		<id property="menu_name" column="menu_name"/>
+		<result property="hour00" column="00시"/>
+		<result property="hour01" column="01시"/>
+		<result property="hour02" column="02시"/>
+		<result property="hour03" column="03시"/>
+		<result property="hour04" column="04시"/>
+		<result property="hour05" column="05시"/>
+		<result property="hour06" column="06시"/>
+		<result property="hour07" column="07시"/>
+		<result property="hour08" column="08시"/>
+		<result property="hour09" column="09시"/>
+		<result property="hour10" column="10시"/>
+		<result property="hour11" column="11시"/>
+		<result property="hour12" column="12시"/>
+		<result property="hour13" column="13시"/>
+		<result property="hour14" column="14시"/>
+		<result property="hour15" column="15시"/>
+		<result property="hour16" column="16시"/>
+		<result property="hour17" column="17시"/>
+		<result property="hour18" column="18시"/>
+		<result property="hour19" column="19시"/>
+		<result property="hour20" column="20시"/>
+		<result property="hour21" column="21시"/>
+		<result property="hour22" column="22시"/>
+		<result property="hour23" column="23시"/>
+	</resultMap>
+	
+	<select id="selectMenuList" resultMap="menuList">
+		SELECT MENU_NO
+		     , MENU_NAME
+		     , MENU_FORM
+		     , MENU_URL
+		     , MENU_TYPE
+		  FROM MENU
+		 WHERE MENU_NO > 0
+		   AND DEL_YN = 'N'
+	  ORDER BY MENU_NO
+	</select>
+	
+	<select id="selectMenuAuthorList" parameterType="menuVO" resultType="Integer">
+		 SELECT A.AUTHOR_NO
+	       FROM AUTHOR A INNER JOIN MENU_N_AUTHOR B
+	         ON A.AUTHOR_NO = B.AUTHOR_NO
+	      WHERE B.MENU_NO = #{menu_no}
+	</select>
+
+	<select id="selectDuplicateMenuName" parameterType="menuVO" resultType="Integer">
+		SELECT COUNT(1)
+		  FROM MENU
+		 WHERE MENU_NAME = #{menu_name}
+		   AND DEL_YN = 'N'
+	</select>
+	
+	<select id="selectDuplicateMenuType" parameterType="menuVO" resultType="Integer">
+		SELECT COUNT(1)
+		  FROM MENU
+		 WHERE MENU_TYPE = #{menu_type}
+		   AND DEL_YN = 'N'
+	</select>
+
+	<insert id="insertMenu" parameterType="egovframework.fusion.menu.vo.MenuVO">
+		INSERT ALL
+		    INTO MENU (
+		                MENU_NO
+		              , MENU_NAME
+		              , MENU_FORM
+		              , MENU_URL
+		              , MENU_TYPE
+		              , DEL_YN
+		              ) 
+		             VALUES (
+		                       SEQ_MENU.NEXTVAL
+		                     , #{menu_name}
+		                     , #{menu_form}
+		                     , #{menu_url}
+		                     , #{menu_type}
+		                     , 'N'
+		                     )
+		<foreach collection="authorList" item="item" separator=" ">
+		    INTO MENU_N_AUTHOR (
+		                        MENU_NO
+		                      , AUTHOR_NO
+		                       )
+		                VALUES
+   	                           (
+   	                              SEQ_MENU.NEXTVAL
+   	                            , #{item}
+   	                           )
+		</foreach>
+	    SELECT * FROM DUAL
+	</insert>
+
+	<insert id="insertMenuAuthor" parameterType="menuVO">
+		INSERT INTO MENU_N_AUTHOR
+		                   VALUES 
+		                      <foreach collection="authorList" item="item" separator=", ">
+		                          (
+		                            #{menu_no}
+		                          , #{item}
+		                          )
+		                      </foreach>
+	</insert>
+	
+	<delete id="deleteMenuAuthor" parameterType="menuVO">
+        <foreach collection="authorList" item="item" open="DECLARE BEGIN" separator="; " close="; END;">
+			DELETE FROM MENU_N_AUTHOR
+			      WHERE MENU_NO = #{menu_no}
+			        AND AUTHOR_NO = #{item}
+		</foreach>
+	</delete>
+
+	<delete id="deleteMenuNAuthor" parameterType="menuVO">
+		DELETE FROM MENU_N_AUTHOR
+		      WHERE MENU_NO = #{menu_no}
+	</delete>
+
+	<update id="deleteMenu" parameterType="menuVO">
+		UPDATE MENU
+		   SET DEL_YN = 'Y'
+		     , UPDATE_DT = TO_CHAR(SYSDATE, 'YYYY-MM-DD')
+		 WHERE MENU_NO = #{menu_no}
+		   AND DEL_YN = 'N'
+	</update>
+
+	<update id="deleteMenuBoard" parameterType="menuVO">
+		UPDATE BOARD
+		   SET DEL_YN = 'Y'
+		 WHERE MENU_TYPE = (
+		                     SELECT MENU_TYPE
+		                       FROM MENU
+		                      WHERE MENU_NO = #{menu_no}
+		                   )
+		   AND DEL_YN = 'N'
+	</update>
+
+
+	<select id="selectHeaderMenuList" parameterType="Integer" resultType="egovframework.fusion.menu.vo.MenuVO">
+		 SELECT A.MENU_NO
+		      , A.MENU_NAME
+		      , A.MENU_FORM
+		      , A.MENU_URL
+		      , A.MENU_TYPE
+		   FROM MENU A INNER JOIN MENU_N_AUTHOR B
+			 ON A.MENU_NO = B.MENU_NO
+		  WHERE A.DEL_YN = 'N'
+			AND B.AUTHOR_NO = #{author_no}
+       ORDER BY MENU_NO
+	</select>
+	
+	<select id="selectIsHasAuthToMenu" parameterType="egovframework.fusion.menu.vo.MenuNAuthorVO" resultType="menuVO">
+		SELECT A.MENU_NO
+		     , A.MENU_NAME
+		     , A.MENU_FORM
+		     , A.MENU_URL
+		     , A.MENU_TYPE
+		  FROM MENU A INNER JOIN MENU_N_AUTHOR B
+		    ON A.MENU_NO = B.MENU_NO
+		 WHERE A.DEL_YN = 'N'
+		   AND B.AUTHOR_NO = #{author_no}
+		   AND A.MENU_TYPE = #{menu_type}
+	</select>
+	
+	<select id="selectMenuListNotLink" resultType="menuVO">
+		SELECT MENU_NAME
+		     , MENU_FORM
+		     , MENU_TYPE
+		  FROM MENU
+		 WHERE MENU_NO > 0
+		   AND DEL_YN = 'N'
+		   AND MENU_FORM != 'link'
+	  ORDER BY MENU_NO
+	</select>
+	
+	<select id="selectYearStatistics" parameterType="String" resultType="egovframework.fusion.menu.vo.YearVO">
+		SELECT MENU_NAME
+		     , NVL(FIRST_YEAR, 0) AS FIRST_YEAR
+		     , NVL(SECOND_YEAR, 0) AS SECOND_YEAR
+		     , NVL(THIRD_YEAR, 0) AS THIRD_YEAR
+		  FROM (
+					 SELECT B.MENU_NAME
+					      , B.MENU_NO
+					      , A.ACCESS_YEAR
+						  , COUNT(A.ACCESS_YEAR) AS CNT
+					   FROM ACCESS_LOG A INNER JOIN MENU B
+						 ON A.MENU_NO = B.MENU_NO
+		              WHERE B.DEL_YN = 'N'
+				   GROUP BY B.MENU_NAME, B.MENU_NO, A.ACCESS_YEAR
+			   )
+		 PIVOT (
+				 SUM(CNT)
+				 FOR ACCESS_YEAR IN (
+				                    ${value}
+				                    )
+			   )
+	  ORDER BY MENU_NO
+	</select>
+	<select id="selectYearStatistics2" resultType="egovframework.fusion.menu.vo.YearVO">
+		SELECT MENU_NAME
+		     , NVL(FIRST_YEAR, 0) AS FIRST_YEAR
+		     , NVL(SECOND_YEAR, 0) AS SECOND_YEAR
+		     , NVL(THIRD_YEAR, 0) AS THIRD_YEAR
+		  FROM (
+					 SELECT B.MENU_NAME
+					      , B.MENU_NO
+					      , A.ACCESS_YEAR
+						  , COUNT(A.ACCESS_YEAR) AS CNT
+					   FROM ACCESS_LOG A INNER JOIN MENU B
+						 ON A.MENU_NO = B.MENU_NO
+		              WHERE B.DEL_YN = 'N'
+				   GROUP BY B.MENU_NAME, B.MENU_NO, A.ACCESS_YEAR
+			   )
+		 PIVOT (
+				 SUM(CNT)
+				 FOR ACCESS_YEAR IN (
+				                      2021 AS FIRST_YEAR
+				                    , 2022 AS SECOND_YEAR
+				                    , 2023 AS THIRD_YEAR
+				                    )
+			   )
+	  ORDER BY MENU_NO
+	</select>
+	
+	<select id="selectMonthStatistics" parameterType="egovframework.fusion.aop.vo.AccessLogVO" resultMap="monthStatistics">
+		SELECT D.MENU_NAME
+             , SUM(DECODE(C.ACCESS_MONTH,'01',1,0)) AS "1월"
+             , SUM(DECODE(C.ACCESS_MONTH,'02',1,0)) AS "2월"
+             , SUM(DECODE(C.ACCESS_MONTH,'03',1,0)) AS "3월"
+             , SUM(DECODE(C.ACCESS_MONTH,'04',1,0)) AS "4월"
+             , SUM(DECODE(C.ACCESS_MONTH,'05',1,0)) AS "5월"
+             , SUM(DECODE(C.ACCESS_MONTH,'06',1,0)) AS "6월"
+             , SUM(DECODE(C.ACCESS_MONTH,'07',1,0)) AS "7월"
+             , SUM(DECODE(C.ACCESS_MONTH,'08',1,0)) AS "8월"
+             , SUM(DECODE(C.ACCESS_MONTH,'09',1,0)) AS "9월"
+             , SUM(DECODE(C.ACCESS_MONTH,'10',1,0)) AS "10월"
+             , SUM(DECODE(C.ACCESS_MONTH,'11',1,0)) AS "11월"
+             , SUM(DECODE(C.ACCESS_MONTH,'12',1,0)) AS "12월"
+          FROM (
+			     SELECT MENU_NO
+				      , ACCESS_MONTH
+				   FROM ACCESS_LOG
+				  WHERE ACCESS_YEAR = #{access_year}
+	           ) C RIGHT OUTER JOIN  (
+	                                   SELECT MENU_NAME
+	                                        , MENU_NO
+	                                     FROM MENU
+	                                    WHERE DEL_YN = 'N'
+	                                      AND MENU_NO != 0
+	                                 ) D
+	        ON (C.MENU_NO = D.MENU_NO)
+      GROUP BY D.MENU_NAME, D.MENU_NO
+      ORDER BY D.MENU_NO
+	</select>
+	
+	<select id="selectDayStatistics" parameterType="egovframework.fusion.aop.vo.AccessLogVO" resultMap="dayStatistics">
+		SELECT MENU_NAME
+             , SUM(DECODE(ACCESS_DAY,'01',1,0)) AS "1일"
+             , SUM(DECODE(ACCESS_DAY,'02',1,0)) AS "2일"
+             , SUM(DECODE(ACCESS_DAY,'03',1,0)) AS "3일"
+             , SUM(DECODE(ACCESS_DAY,'04',1,0)) AS "4일"
+             , SUM(DECODE(ACCESS_DAY,'05',1,0)) AS "5일"
+             , SUM(DECODE(ACCESS_DAY,'06',1,0)) AS "6일"
+             , SUM(DECODE(ACCESS_DAY,'07',1,0)) AS "7일"
+             , SUM(DECODE(ACCESS_DAY,'08',1,0)) AS "8일"
+             , SUM(DECODE(ACCESS_DAY,'09',1,0)) AS "9일"
+             , SUM(DECODE(ACCESS_DAY,'10',1,0)) AS "10일"
+             , SUM(DECODE(ACCESS_DAY,'11',1,0)) AS "11일"
+             , SUM(DECODE(ACCESS_DAY,'12',1,0)) AS "12일"
+             , SUM(DECODE(ACCESS_DAY,'13',1,0)) AS "13일"
+             , SUM(DECODE(ACCESS_DAY,'14',1,0)) AS "14일"
+             , SUM(DECODE(ACCESS_DAY,'15',1,0)) AS "15일"
+             , SUM(DECODE(ACCESS_DAY,'16',1,0)) AS "16일"
+             , SUM(DECODE(ACCESS_DAY,'17',1,0)) AS "17일"
+             , SUM(DECODE(ACCESS_DAY,'18',1,0)) AS "18일"
+             , SUM(DECODE(ACCESS_DAY,'19',1,0)) AS "19일"
+             , SUM(DECODE(ACCESS_DAY,'20',1,0)) AS "20일"
+             , SUM(DECODE(ACCESS_DAY,'21',1,0)) AS "21일"
+             , SUM(DECODE(ACCESS_DAY,'22',1,0)) AS "22일"
+             , SUM(DECODE(ACCESS_DAY,'23',1,0)) AS "23일"
+             , SUM(DECODE(ACCESS_DAY,'24',1,0)) AS "24일"
+             , SUM(DECODE(ACCESS_DAY,'25',1,0)) AS "25일"
+             , SUM(DECODE(ACCESS_DAY,'26',1,0)) AS "26일"
+             , SUM(DECODE(ACCESS_DAY,'27',1,0)) AS "27일"
+             , SUM(DECODE(ACCESS_DAY,'28',1,0)) AS "28일"
+             , SUM(DECODE(ACCESS_DAY,'29',1,0)) AS "29일"
+             , SUM(DECODE(ACCESS_DAY,'30',1,0)) AS "30일"
+             , SUM(DECODE(ACCESS_DAY,'31',1,0)) AS "31일"
+		FROM (
+				SELECT B.MENU_NAME
+		             , B.MENU_NO
+		             , A.ACCESS_DAY
+				  FROM (
+						 SELECT MENU_NO
+						      , ACCESS_DAY
+						   FROM ACCESS_LOG
+						  WHERE ACCESS_YEAR = #{access_year}
+							AND ACCESS_MONTH = #{access_month}
+					   ) A
+			     RIGHT OUTER JOIN  (
+				                     SELECT MENU_NAME
+				                          , MENU_NO
+				                       FROM MENU
+				                      WHERE DEL_YN = 'N'
+				                        AND MENU_NO != 0
+					                ) B
+					  ON (A.MENU_NO = B.MENU_NO)
+             ) C
+LEFT OUTER JOIN (
+				   SELECT SUBSTR(LPAD(ROWNUM, 3, '0'), -2, 2) AS DAYS
+					 FROM DICT
+				<![CDATA[
+					WHERE ROWNUM <=  TO_CHAR(LAST_DAY(TO_DATE(#{access_dt}, 'YYYY-MM')), 'DD')
+				]]>
+                 ) D
+          ON C.ACCESS_DAY = D.DAYS
+    GROUP BY MENU_NAME, MENU_NO
+    ORDER BY MENU_NO
+	</select>
+	
+	<select id="selectHourStatistics" parameterType="egovframework.fusion.aop.vo.AccessLogVO" resultMap="hourStatistics">
+		SELECT B.MENU_NAME
+             , SUM(DECODE(A.ACCESS_HOUR,'00',1,0)) AS "00시"
+             , SUM(DECODE(A.ACCESS_HOUR,'01',1,0)) AS "01시"
+             , SUM(DECODE(A.ACCESS_HOUR,'02',1,0)) AS "02시"
+             , SUM(DECODE(A.ACCESS_HOUR,'03',1,0)) AS "03시"
+             , SUM(DECODE(A.ACCESS_HOUR,'04',1,0)) AS "04시"
+             , SUM(DECODE(A.ACCESS_HOUR,'05',1,0)) AS "05시"
+             , SUM(DECODE(A.ACCESS_HOUR,'06',1,0)) AS "06시"
+             , SUM(DECODE(A.ACCESS_HOUR,'07',1,0)) AS "07시"
+             , SUM(DECODE(A.ACCESS_HOUR,'08',1,0)) AS "08시"
+             , SUM(DECODE(A.ACCESS_HOUR,'09',1,0)) AS "09시"
+             , SUM(DECODE(A.ACCESS_HOUR,'10',1,0)) AS "10시"
+             , SUM(DECODE(A.ACCESS_HOUR,'11',1,0)) AS "11시"
+             , SUM(DECODE(A.ACCESS_HOUR,'12',1,0)) AS "12시"
+             , SUM(DECODE(A.ACCESS_HOUR,'13',1,0)) AS "13시"
+             , SUM(DECODE(A.ACCESS_HOUR,'14',1,0)) AS "14시"
+             , SUM(DECODE(A.ACCESS_HOUR,'15',1,0)) AS "15시"
+             , SUM(DECODE(A.ACCESS_HOUR,'16',1,0)) AS "16시"
+             , SUM(DECODE(A.ACCESS_HOUR,'17',1,0)) AS "17시"
+             , SUM(DECODE(A.ACCESS_HOUR,'18',1,0)) AS "18시"
+             , SUM(DECODE(A.ACCESS_HOUR,'19',1,0)) AS "19시"
+             , SUM(DECODE(A.ACCESS_HOUR,'20',1,0)) AS "20시"
+             , SUM(DECODE(A.ACCESS_HOUR,'21',1,0)) AS "21시"
+             , SUM(DECODE(A.ACCESS_HOUR,'22',1,0)) AS "22시"
+             , SUM(DECODE(A.ACCESS_HOUR,'23',1,0)) AS "23시"
+          FROM (
+			     SELECT MENU_NO
+				      , ACCESS_HOUR
+				   FROM ACCESS_LOG
+				  WHERE ACCESS_YEAR = #{access_year}
+				    AND ACCESS_MONTH = #{access_month}
+				    AND ACCESS_DAY = #{access_day}
+	          ) A RIGHT OUTER JOIN  (
+					                  SELECT MENU_NAME
+					                       , MENU_NO
+					                    FROM MENU
+					                   WHERE DEL_YN = 'N'
+					                     AND MENU_NO != 0
+	                                 ) B
+	        ON (A.MENU_NO = B.MENU_NO)
+      GROUP BY B.MENU_NAME, B.MENU_NO
+      ORDER BY B.MENU_NO
+	</select>
+</mapper>

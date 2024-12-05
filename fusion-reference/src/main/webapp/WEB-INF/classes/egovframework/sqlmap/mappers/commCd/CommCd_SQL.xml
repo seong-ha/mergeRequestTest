@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.fusion.commCd.service.CommCdMapper">
+	<resultMap id="groupNDetail" type="commCdVO">
+		<id property="comm_cd_no" column="comm_cd_no"/>
+		<result property="code" column="code"/>
+		<result property="code_name" column="code_name"/>
+		<result property="note" column="note"/>
+		<result property="del_yn" column="del_yn"/>
+		<result property="parent_no" column="parent_no"/>
+		<result property="regist_dt" column="regist_dt"/>
+		<result property="udpate_dt" column="udpate_dt"/>
+		
+		<collection property="commCdList" column="parent_no = comm_cd_no" javaType="List" 
+					ofType="commCdVO" select="selectDetailCdList"/>
+	</resultMap>
+
+	<select id="selectGroupCdList" parameterType="searchVO" resultType="commCdVO">
+		SELECT ROWNUM AS ORDER_NUM
+		     , COMM_CD_NO
+		     , CODE
+		     , CODE_NAME
+		     , NOTE
+		     , PARENT_NO
+		     , REGIST_DT
+		     , UPDATE_DT
+		  FROM COMM_CD
+		 WHERE DEL_YN = 'N'
+		   AND PARENT_NO = 0
+	   <if test="srchType != null and srchType.equals('code')">
+	   	   AND CODE LIKE '%' || #{srchText} || '%'
+	   </if>
+	   <if test="srchType != null and srchType.equals('codeName')">
+	   	   AND CODE_NAME LIKE '%' || #{srchText} || '%'
+	   </if>
+	  ORDER BY COMM_CD_NO
+	</select>
+	
+	<select id="selectDetailCdList" parameterType="commCdVO" resultType="commCdVO">
+		SELECT ROWNUM AS ORDER_NUM
+		     , COMM_CD_NO
+		     , CODE
+		     , CODE_NAME
+		     , NOTE
+		     , PARENT_NO
+		     , REGIST_DT
+		     , UPDATE_DT
+		  FROM COMM_CD
+		 WHERE DEL_YN = 'N'
+		   AND PARENT_NO = #{parent_no}
+	  ORDER BY COMM_CD_NO
+	</select>
+	
+	<select id="selectCommCdWithCode" parameterType="commCdVO" resultType="commCdVO">
+		SELECT *
+		  FROM COMM_CD
+		 WHERE DEL_YN = 'N'
+		   AND PARENT_NO = #{parent_no} 
+		   AND CODE = #{code}
+	   <if test="comm_cd_no != null and comm_cd_no != 0">
+		   AND COMM_CD_NO != #{comm_cd_no}  
+	   </if>
+	</select>
+	
+	<insert id="insertCommCd" parameterType="commCdVO">
+		INSERT INTO COMM_CD (
+		                      COMM_CD_NO
+		                    , CODE
+		                    , CODE_NAME
+		                    , NOTE
+		                    , PARENT_NO
+		                    , REGIST_DT
+		                    , UPDATE_DT
+		                    )
+		             VALUES (
+		                      SEQ_COMM_CD.NEXTVAL
+		                    , #{code}
+		                    , #{code_name}
+		                    , #{note}
+		                    , #{parent_no}
+		                    , TO_CHAR(SYSDATE, 'YYYY-MM-DD')
+		                    , TO_CHAR(SYSDATE, 'YYYY-MM-DD')
+		                    )
+	</insert>
+	
+	<update id="updateCommCd" parameterType="commCdVO">
+		UPDATE COMM_CD
+		   SET CODE = #{code}
+		     , CODE_NAME = #{code_name}
+		     , NOTE = #{note}
+		 WHERE COMM_CD_NO = #{comm_cd_no}
+	</update>
+	
+	<select id="selectDetailCdCnt" parameterType="Integer" resultType="int">
+		SELECT COUNT(*)
+		  FROM COMM_CD
+		 WHERE DEL_YN = 'N'
+		   AND PARENT_NO = #{value}
+	</select>
+	
+	<update id="deleteCommCdList" parameterType="java.util.List">
+		UPDATE COMM_CD
+		   SET DEL_YN = 'Y'
+		     , UPDATE_DT = TO_CHAR(SYSDATE, 'YYYY-MM-DD')
+		 WHERE COMM_CD_NO IN (
+		                     <foreach collection="list" item="item" separator=", ">
+			                     #{item}
+		                     </foreach>
+		                     )
+	</update>
+	
+	<select id="selectGroupDetailCdList" parameterType="searchVO" resultMap="groupNDetail">
+		SELECT ROWNUM AS ORDER_NUM
+		     , COMM_CD_NO
+		     , CODE
+		     , CODE_NAME
+		     , NOTE
+		     , PARENT_NO
+		     , REGIST_DT
+		     , UPDATE_DT
+		  FROM COMM_CD
+		 WHERE DEL_YN = 'N'
+		   AND PARENT_NO = 0
+	   <if test="srchType != null and srchType.equals('code')">
+	   	   AND CODE LIKE '%' || #{srchText} || '%'
+	   </if>
+	   <if test="srchType != null and srchType.equals('codeName')">
+	   	   AND CODE_NAME LIKE '%' || #{srchText} || '%'
+	   </if>
+	  ORDER BY COMM_CD_NO
+	</select>
+	
+	<select id="selectDetailCdListWithCode" parameterType="commCdVO" resultType="commCdVO">
+		SELECT COMM_CD_NO
+		     , CODE_NAME
+		  FROM COMM_CD
+		 WHERE PARENT_NO = (
+		 					 SELECT COMM_CD_NO
+		 					   FROM COMM_CD
+		 					  WHERE CODE = #{value}
+		 					    AND PARENT_NO = 0
+		                   )
+	</select>
+</mapper>

@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.fusion.gallery.service.GalleryMapper">
+	<!-- <select id="getGalleryList" parameterType="boardVO" resultType="boardVO">
+		
+	</select> -->
+
+	<insert id="insGalleryBoard" parameterType="boardVO">
+		<selectKey keyProperty="board_no" keyColumn="BOARD_NO" resultType="Integer" order="BEFORE">
+			SELECT SEQ_BOARD.NEXTVAL
+			  FROM DUAL
+		</selectKey>                  
+		INSERT INTO BOARD (
+		                    BOARD_NO
+		                  , TITLE
+		                  , MEMBER_NO
+		                  , TYPE
+		                  , REGIST_DT
+		                  , UPDATE_DT
+		                  , CONTENT
+		                  , MENU_TYPE
+		                  )
+		           VALUES (
+		                    #{board_no}
+		                  , #{title}
+		                  , #{member_no}
+		                  , #{type}
+		                  , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+		                  , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+		                  , #{content}
+		                  , #{menu_type}
+		                 )
+	</insert>
+	
+	<insert id="insGalleryFiles" parameterType="java.util.List">
+		INSERT INTO FILES (
+		                    FILES_NO
+		                  , BOARD_NO
+		                  , ORIGIN_NAME
+		                  , SAVE_NAME
+		                  , VOLUME
+		                  , PATH
+		                  , REGIST_DT
+		                  , UPDATE_DT
+		                  )
+		          VALUES
+		                <foreach collection="list" item="list" separator=",">
+			                (
+			                  SEQ_FILES.NEXTVAL
+			                , #{list.board_no}
+			                , #{list.origin_name}
+			                , #{list.save_name}
+			                , #{list.volume}
+			                , #{list.path}
+			                , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+			                , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+			                )
+		                </foreach>	
+	</insert>
+	
+	<insert id="insGalleryTags" parameterType="java.util.List">
+		INSERT INTO TAG (
+		                    TAG_NO
+		                  , TAG_NAME
+		                  , BOARD_NO
+		                  , REGIST_DT
+		                 )
+		          VALUES
+		                <foreach collection="list" item="list" separator=",">
+			                (
+			                  SEQ_TAG.NEXTVAL
+			                , #{list.tag_name}
+			                , #{list.board_no}
+			                , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+			                )
+		                </foreach>	
+	</insert>
+
+	<select id="getGalleryBoardList" parameterType="searchVO" resultType="boardVO">
+		SELECT BOARD_NUM
+		     , BOARD_NO
+		     , TITLE
+		     , MEMBER_NO
+		     , ID
+		     , BOARD_CNT
+		     , REGIST_DT
+		     , LIKE_CNT
+		     , CONTENT
+		     , MENU_TYPE
+		     , TOTAL
+		  FROM (
+				SELECT ROWNUM AS BOARD_NUM
+				     , C.*
+				FROM (
+						SELECT A.BOARD_NO
+							 , A.TITLE
+							 , A.MEMBER_NO
+							 , B.ID
+							 , A.BOARD_CNT
+							 , A.REGIST_DT
+							 , A.LIKE_CNT
+							 , A.CONTENT
+							 , A.MENU_TYPE
+							 , COUNT(*) OVER() AS TOTAL
+					      FROM BOARD A INNER JOIN MEMBER B
+						    ON A.MEMBER_NO = B.MEMBER_NO
+						 
+					     WHERE A.DEL_YN = 'N'
+					       AND A.MENU_TYPE = #{menuType}
+		           			<if test="srchText != null and srchType.equals('all')">
+						   AND (
+			                     B.ID LIKE '%' || #{srchText} || '%'
+			                     OR A.TITLE LIKE '%' || #{srchText} || '%'
+			                     OR A.CONTENT LIKE '%' || #{srchText} || '%'
+			                     OR A.BOARD_NO IN (
+			                                  SELECT BOARD_NO
+			                                    FROM TAG
+			                                   WHERE TAG_NAME LIKE #{srchText}
+			                                  )
+			                   )
+				            </if>
+				            <if test="srchText != null and srchType.equals('writer')">
+			               AND B.ID LIKE '%' || #{srchText} || '%'
+				            </if>
+				            <if test="srchText != null and srchType.equals('title')">
+			               AND A.TITLE LIKE '%' || #{srchText} || '%'
+				            </if>
+				            <if test="srchText != null and srchType.equals('content')">
+			               AND A.CONTENT LIKE '%' || #{srchText} || '%'
+				            </if>
+				            <if test="srchText != null and srchType.equals('tag')">
+			               AND A.BOARD_NO IN (
+			                                  SELECT BOARD_NO
+			                                    FROM TAG
+			                                   WHERE TAG_NAME LIKE '%' || #{srchText} || '%'
+			                                  )
+				            </if>
+				            <if test="srchText != null and srchType.equals('tag_exact')">
+			               AND A.BOARD_NO IN (
+			                                  SELECT BOARD_NO
+			                                    FROM TAG
+			                                   WHERE TAG_NAME = #{srchText}
+			                                  )
+				            </if>
+					    ORDER BY A.BOARD_NO DESC
+				         ) C
+				)         
+		 <![CDATA[
+		 WHERE BOARD_NUM >= #{cntPerPage} * (#{nowPage} - 1) + 1
+		   AND BOARD_NUM <= #{cntPerPage} * #{nowPage}
+		 ]]>	
+	</select>
+	
+	<select id="getGalleryTagList" parameterType="java.util.List" resultType="egovframework.fusion.gallery.vo.TagVO">
+		SELECT TAG_NO
+		     , TAG_NAME
+		     , BOARD_NO
+		  FROM TAG
+		 WHERE BOARD_NO IN (
+		                    <foreach collection="list" item="value" separator=",">
+		                    	#{value}
+		                    </foreach>
+		                    )
+		   AND DEL_YN = 'N'
+		ORDER BY BOARD_NO DESC, TAG_NO ASC
+	</select>
+	
+	<select id="getGalleryThumbnails" resultType="egovframework.fusion.gallery.vo.FilesVO">
+		SELECT FILES_NO
+		     , BOARD_NO
+		     , ORIGIN_NAME
+		     , SAVE_NAME
+		     , PATH
+		  FROM FILES
+		 WHERE BOARD_NO IN (
+		                    <foreach collection="list" item="value" separator=",">
+		                    	#{value}
+		                    </foreach>
+		                    )
+		   AND DEL_YN = 'N'
+		   AND SAVE_NAME LIKE 't_' || '%'
+		ORDER BY FILES_NO
+	</select>
+	
+	<select id="getGalleryBoard" parameterType="boardVO" resultType="boardVO">
+		SELECT A.BOARD_NO
+		     , A.TITLE
+		     , A.CONTENT
+		     , A.MEMBER_NO
+		     , B.ID
+		     , A.REGIST_DT
+		     , A.BOARD_CNT
+		     , A.LIKE_CNT
+		     , A.MENU_TYPE
+		  FROM BOARD A INNER JOIN MEMBER B
+		    ON A.MEMBER_NO = B.MEMBER_NO
+		 WHERE A.BOARD_NO = #{board_no}
+		   AND A.DEL_YN = 'N'
+	</select>
+	
+	<select id="getGalleryFiles" parameterType="boardVO" resultType="egovframework.fusion.gallery.vo.FilesVO">
+		SELECT FILES_NO
+		     , BOARD_NO
+		     , ORIGIN_NAME
+		     , SAVE_NAME
+		     , VOLUME
+		     , PATH
+		     , DOWN_CNT
+		  FROM FILES
+		 WHERE BOARD_NO = #{board_no}
+		   AND DEL_YN = 'N'
+		   AND SAVE_NAME NOT LIKE 't_%'
+		 ORDER BY FILES_NO ASC
+	</select>
+	
+	<select id="getGalleryTags" parameterType="boardVO" resultType="egovframework.fusion.gallery.vo.TagVO">
+		SELECT TAG_NO
+		     , TAG_NAME
+		     , BOARD_NO
+		  FROM TAG
+		 WHERE BOARD_NO = #{board_no}
+		   AND DEL_YN = 'N'
+		ORDER BY BOARD_NO DESC, TAG_NO ASC
+	</select>
+	
+	<update id="updDownCnt" parameterType="egovframework.fusion.gallery.vo.FilesVO">
+		UPDATE FILES
+		   SET DOWN_CNT = DOWN_CNT + 1
+		 WHERE FILES_NO = #{files_no}
+	</update>
+	
+	<insert id="insLikeLog" parameterType="egovframework.fusion.gallery.vo.LikeVO">
+		INSERT INTO LIKE_LOG (
+		                       LIKE_NO
+		                     , BOARD_NO
+		                     , MEMBER_NO
+		                     , REGIST_DT
+		                     )
+		              VALUES (
+		                       SEQ_LIKE_LOG.NEXTVAL
+		                     , #{board_no}
+		                     , #{member_no}
+		                     , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+		                     )
+		                     
+		<!--
+		    insert후, 해당 회원의 해당 게시물 좋아요 기록 건수가 짝수이면 board_cnt에 update해야할 양은 +1
+		                                         홀수이면 -1
+		-->
+		<selectKey keyProperty="update_amount" keyColumn="UPDATE_AMOUNT" resultType="Integer" order="AFTER">
+			SELECT CASE ETC
+			           WHEN 0 THEN -1
+			           ELSE 1 END
+			       AS UPDATE_AMOUNT
+			FROM (
+				   SELECT MOD(CNT, 2) AS ETC
+					 FROM (
+							SELECT CASE CNT
+							           WHEN 0 THEN 1
+							           ELSE CNT
+							       END AS CNT
+							   FROM (
+									  SELECT COUNT(1) AS CNT
+									    FROM LIKE_LOG
+								       WHERE BOARD_NO = #{board_no}
+									     AND MEMBER_NO = #{member_no}
+								     )
+						   )
+			     )
+		</selectKey>
+	</insert>
+	
+	<update id="updBoardLikeCnt" parameterType="egovframework.fusion.gallery.vo.LikeVO">
+		UPDATE BOARD
+		   SET LIKE_CNT = LIKE_CNT + (#{update_amount})
+		 WHERE BOARD_NO = #{board_no}	
+	</update>
+	
+	<select id="isLiked" parameterType="egovframework.fusion.gallery.vo.LikeVO"
+			resultType="egovframework.fusion.gallery.vo.LikeVO">
+		SELECT MOD(CNT, 2) AS IS_LIKED
+		  FROM (
+			    SELECT COUNT(1) AS CNT
+			 	  FROM LIKE_LOG
+		         WHERE BOARD_NO = #{board_no}
+				   AND MEMBER_NO = #{member_no}
+		       )
+    </select>
+    
+    <update id="updGalleryBoard" parameterType="boardVO">
+		UPDATE BOARD
+		   SET TITLE = #{title}
+		     , CONTENT = #{content}
+		     , UPDATE_DT = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+		 WHERE BOARD_NO = #{board_no}
+    </update>
+    
+    <update id="delGalleryFiles" parameterType="java.util.List">
+		UPDATE FILES
+		   SET DEL_YN = 'Y'
+		     , UPDATE_DT = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+		 WHERE FILES_NO IN (
+				             <foreach collection="list" item="value" separator=",">
+				             	#{value}
+				             </foreach>
+				           )
+    </update>
+    
+    <select id="nowThumbOriginFile" parameterType="Integer" resultType="egovframework.fusion.gallery.vo.FilesVO">
+		SELECT FILES_NO
+		     , BOARD_NO
+		     , ORIGIN_NAME
+		     , SAVE_NAME
+		     , PATH
+		     , DEL_YN
+		  FROM FILES
+		 WHERE BOARD_NO = #{value}
+		   AND SAVE_NAME = (
+							 SELECT SUBSTR(SAVE_NAME,3)
+							   FROM FILES
+							  WHERE BOARD_NO = #{value}
+							    AND DEL_YN = 'N'
+							    AND SAVE_NAME LIKE 't_%'
+		                    )
+    </select>
+    
+    <update id="delThumbFile" parameterType="egovframework.fusion.gallery.vo.FilesVO">
+		UPDATE (
+		         SELECT *
+				   FROM FILES
+				  WHERE BOARD_NO = #{board_no}
+			        AND DEL_YN = 'N'
+				)
+		   SET DEL_YN = 'Y'
+		 	 , UPDATE_DT = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+		 WHERE SAVE_NAME  = 't_' || #{save_name}
+    </update>
+    
+    <select id="firstExistFile" parameterType="Integer" resultType="egovframework.fusion.gallery.vo.FilesVO">
+		SELECT FILES_NO
+		     , BOARD_NO
+		     , ORIGIN_NAME
+		     , SAVE_NAME
+		     , PATH
+		  FROM (
+			     SELECT *
+				   FROM FILES
+				  WHERE BOARD_NO = #{value}
+				    AND DEL_YN = 'N'
+		        )
+		WHERE FILES_NO = (
+						   SELECT MIN(FILES_NO)
+							 FROM FILES
+							WHERE BOARD_NO = #{value}
+							  AND DEL_YN = 'N'
+		                  )
+    </select>
+    
+    <insert id="insGalleryFile" parameterType="egovframework.fusion.gallery.vo.FilesVO">
+		INSERT INTO FILES (
+		                    FILES_NO
+		                  , BOARD_NO
+		                  , ORIGIN_NAME
+		                  , SAVE_NAME
+		                  , VOLUME
+		                  , PATH
+		                  , REGIST_DT
+		                  , UPDATE_DT
+		                  )
+		          VALUES
+			              (
+			                SEQ_FILES.NEXTVAL
+			              , #{board_no}
+			              , #{origin_name}
+			              , #{save_name}
+			              , #{volume}
+			              , #{path}
+			              , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+			              , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+			              )
+	</insert>
+	
+	<update id="delGalleryTags" parameterType="java.util.List">
+		UPDATE TAG
+		   SET DEL_YN = 'Y'
+		 WHERE TAG_NO IN (
+				             <foreach collection="list" item="list" separator=",">
+				             	#{list.tag_no}
+				             </foreach>
+				           )
+	</update>
+	
+	<update id="delGalleryBoard" parameterType="boardVO">
+		UPDATE BOARD
+		   SET DEL_YN = 'Y'
+		     , UPDATE_DT = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+		 WHERE BOARD_NO = #{board_no}
+	</update>
+	
+	<update id="delGalleryBoardFiles" parameterType="boardVO">
+		UPDATE FILES
+		   SET DEL_YN = 'Y'
+		     , UPDATE_DT = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+		 WHERE BOARD_NO = #{board_no}
+		   AND DEL_YN = 'N'
+	</update>
+	
+	<update id="delGalleryBoardTags" parameterType="boardVO">
+		UPDATE TAG
+		   SET DEL_YN = 'Y'
+		 WHERE BOARD_NO = #{board_no}
+	</update>
+</mapper>

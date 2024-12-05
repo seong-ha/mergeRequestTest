@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.fusion.member.service.MemberMapper">
+	<select id="getMember"
+			parameterType="egovframework.fusion.member.vo.MemberVO" 
+			resultType="egovframework.fusion.member.vo.MemberVO">
+			SELECT MEMBER_NO
+			     , ID
+			     , PWD
+			     , NAME
+			     , REGIST_DT
+			     , UPDATE_DT
+			     , AUTHOR_NO
+			  FROM MEMBER
+			 WHERE ID = #{id}
+			   AND DEL_YN = 'N'
+	</select>
+	
+	<insert id="insertMember" parameterType="egovframework.fusion.member.vo.MemberVO">
+		INSERT INTO MEMBER(
+		                    MEMBER_NO
+		                  , ID
+		                  , PWD
+		                  , NAME
+		                  , AUTHOR_NO
+		                  , REGIST_DT
+		                  , UPDATE_DT
+		                  , REGION
+		                  )
+		           VALUES (
+		                    SEQ_MEMBER.NEXTVAL
+		                  , #{id}
+		                  , #{pwd}
+		                  , #{name}
+		                  , #{author_no}
+		                  , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+			   			  , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+			   			  , #{region}
+		                  )
+	</insert>
+</mapper>

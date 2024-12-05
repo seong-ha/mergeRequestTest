@@ -1,0 +1,607 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="egovframework.fusion.survey.service.SurveyMapper">
+
+	<!-- 설문 진행 화면에서 뿌려줄 문항목록과 그에 따른 선택지 목록들-->
+	<resultMap id="questionNSelection" type="questionVO">
+		<id property="question_no" column="question_no"/>
+		<result property="survey_no" column="survey_no"/>
+		<result property="question_num" column="question_num"/>
+		<result property="content" column="content"/>
+		<result property="necessity_yn" column="necessity_yn"/>
+		<result property="del_yn" column="del_yn"/>
+		<result property="parent_no" column="parent_no"/>
+		<result property="question_category_no" column="question_category_no"/>
+		<result property="question_category_name" column="question_category_name"/>
+		<result property="answer_cnt" column="answer_cnt"/>
+		<result property="selection_no" column="selection_no"/>
+		
+		<collection property="selectionList" column="selection_no = selection_no" javaType="List" 
+					ofType="selectionVO" select="selectSelectionList"/>
+	</resultMap>
+	
+	
+	<!-- 설문 문항 관리에서 뿌려줄 문항목록과 그에 따른 자식문항목록과 선택지 목록들 -->
+	<resultMap id="questionNSelectionForManage" type="questionVO">
+		<id property="question_no" column="question_no"/>
+		<result property="survey_no" column="survey_no"/>
+		<result property="question_num" column="question_num"/>
+		<result property="content" column="content"/>
+		<result property="necessity_yn" column="necessity_yn"/>
+		<result property="del_yn" column="del_yn"/>
+		<result property="parent_no" column="parent_no"/>
+		<result property="question_category_no" column="question_category_no"/>
+		<result property="question_category_name" column="question_category_name"/>
+		<result property="answer_cnt" column="answer_cnt"/>
+		<result property="selection_no" column="selection_no"/>
+		
+		<collection property="selectionList" column="selection_no = selection_no" javaType="List" 
+					ofType="selectionVO" select="selectSelectionList"/>
+					
+		<collection property="questionList" column="parent_no = question_no" javaType="List" 
+					ofType="questionVO" select="selectChildQuestionList"/>
+	</resultMap>
+	
+	
+	<!-- ResultMap questionNSelectionForManage의 자식문항 목록에 담기는, 자식문항과 그에 따른 선택지 목록  -->
+	<resultMap id="childQuestionNSelectionForManage" type="questionVO">
+		<id property="question_no" column="question_no"/>
+		<result property="survey_no" column="survey_no"/>
+		<result property="question_num" column="question_num"/>
+		<result property="content" column="content"/>
+		<result property="necessity_yn" column="necessity_yn"/>
+		<result property="del_yn" column="del_yn"/>
+		<result property="parent_no" column="parent_no"/>
+		<result property="question_category_no" column="question_category_no"/>
+		<result property="question_category_name" column="question_category_name"/>
+		<result property="answer_cnt" column="answer_cnt"/>
+		<result property="selection_no" column="selection_no"/>
+		
+		<collection property="selectionList" column="selection_no = selection_no" javaType="List" 
+					ofType="selectionVO" select="selectSelectionList"/>
+	</resultMap>
+	
+	
+	<!-- /////////////////////////////////////////////////////////////////////////////////////// -->
+	<!-- /////////////////////////////////////////////////////////////////////////////////////// -->
+	
+	
+	<select id="selectSurveyList" resultType="surveyVO" parameterType="searchVO">
+		 SELECT SURVEY_NO
+	          , HOST_NAME
+	          , SURVEY_TITLE
+	          , SUBJECT
+	          , START_DT
+	          , TO_CHAR(TO_DATE(START_DT, 'YYYY-MM-DD'), 'DY') AS START_DY
+	          , END_DT
+	          , TO_CHAR(TO_DATE(END_DT, 'YYYY-MM-DD'), 'DY') AS END_DY
+	          <![CDATA[
+	          , CASE WHEN START_DT <= TO_CHAR(SYSDATE, 'YYYY-MM-DD')
+	                  AND END_DT >= TO_CHAR(SYSDATE, 'YYYY-MM-DD')
+	          ]]>
+	          			 THEN 'Y'
+	          			 ELSE 'N'
+	  			 END AS AVAILABLE_YN
+		   FROM SURVEY
+		  WHERE DEL_YN = 'N'
+		    AND MENU_TYPE = #{menuType}
+	   ORDER BY SURVEY_NO DESC
+	</select>
+	
+	<select id="selectSurvey" resultType="surveyVO" parameterType="surveyVO">
+		SELECT SURVEY_NO
+	          , HOST_NAME
+	          , SURVEY_TITLE
+	          , CONTENT
+	          , START_DT
+	          , TO_CHAR(TO_DATE(START_DT, 'YYYY-MM-DD'), 'DY') AS START_DY
+	          , END_DT
+	          , TO_CHAR(TO_DATE(END_DT, 'YYYY-MM-DD'), 'DY') AS END_DY
+	          , (TO_DATE(END_DT, 'YYYY-MM-DD') - TO_DATE(START_DT, 'YYYY-MM-DD') + 1) AS TOTAL_DAYS
+	          , WIN_OPEN_DT
+	          , TO_CHAR(TO_DATE(WIN_OPEN_DT, 'YYYY-MM-DD'), 'DY') AS WIN_OPEN_DY
+	          , WIN_OPEN_LOC
+	          , SUBJECT
+	          , SUBMIT_CNT
+	          , (
+				  SELECT COUNT(1)
+					FROM QUESTION SA
+			       WHERE SURVEY_NO = A.SURVEY_NO
+					 AND DEL_YN = 'N'
+					 AND SELECTION_NO != 0
+	            ) AS REQ_QUE_CNT
+	          <![CDATA[
+	          , CASE WHEN START_DT <= TO_CHAR(SYSDATE, 'YYYY-MM-DD')
+	                  AND END_DT >= TO_CHAR(SYSDATE, 'YYYY-MM-DD') 
+	          ]]>
+	          			 THEN 'Y'
+	          			 ELSE 'N'
+	  			 END AS AVAILABLE_YN
+		  FROM SURVEY A
+		 WHERE SURVEY_NO = #{survey_no}
+		   AND DEL_YN = 'N'
+	</select>
+
+	<select id="selectMemberParticipateList" parameterType="participateVO" resultType="participateVO">
+		SELECT PARTICIPATE_NO
+	         , SURVEY_NO
+	         , MEMBER_NO
+	         , REGIST_DT
+	         , UPDATE_DT
+	   	  FROM PARTICIPATE
+	     WHERE MEMBER_NO = #{member_no}
+	       AND SURVEY_NO = #{survey_no}
+	</select>
+
+	<select id="selectQuestionList" parameterType="surveyVO" resultMap="questionNSelection">
+		 SELECT A.QUESTION_NO
+	          , A.SURVEY_NO
+	          , A.QUESTION_NUM
+	          , A.PARENT_NO
+	          , A.QUESTION_CATEGORY_NO
+	          , B.QUESTION_CATEGORY_NAME
+	          , A.CONTENT
+	          , A.SELECTION_NO
+	          , A.ANSWER_CNT
+	          , A.NECESSITY_YN
+		   FROM QUESTION A
+LEFT OUTER JOIN QUESTION_CATEGORY B
+		     ON A.QUESTION_CATEGORY_NO = B.QUESTION_CATEGORY_NO
+		  WHERE A.SURVEY_NO = #{survey_no}
+		    AND A.DEL_YN = 'N'
+		 ORDER BY A.QUESTION_NO
+	</select>
+	
+	<select id="selectSelectionList" parameterType="questionVO" resultType="selectionVO">
+		SELECT SELECTION_NO
+		     , SELECTION_ORDR
+		     , SELECTION_NAME  
+		  FROM SELECTION
+		 WHERE SELECTION_NO = #{selection_no}
+		   AND DEL_YN = 'N'
+	</select>
+	
+	<select id="selectParticipateCnt" resultType="participateVO" parameterType="participateVO">
+		SELECT COUNT(1) AS PARTICIPATE_CNT
+		  FROM PARTICIPATE
+		 WHERE SURVEY_NO = #{survey_no}
+		   AND MEMBER_NO = #{member_no}
+	</select>
+	
+	<select id="selectIsInTempAnswer" parameterType="answerVO" resultType="int">
+		SELECT COUNT(1) AS ANSWER_NO
+		  FROM ANSWER A INNER JOIN QUESTION B
+		    ON A.QUESTION_NO = B.QUESTION_NO
+		 WHERE A.MEMBER_NO = #{member_no}
+		   AND B.SURVEY_NO = #{survey_no}
+		   AND PARTICIPATE_NO = 0
+		   AND A.DEL_YN = 'N'
+		   AND A.TEMP_YN = 'Y'
+	</select>
+	
+	<select id="selectTempAnswerList"
+			parameterType="answerVO" resultType="egovframework.fusion.survey.vo.TempAnswerVO">
+	     SELECT A.ANSWER_NO
+	          , A.QUESTION_NO
+	          , A.SELECTION_ORDR
+	          , A.CONTENT
+	          , A.SURVEY_NO
+	          , B.QUESTION_NUM
+	          , B.SELECTION_NO
+	       FROM ANSWER A INNER JOIN QUESTION B
+	         ON A.QUESTION_NO = B.QUESTION_NO
+	      WHERE A.SURVEY_NO = #{survey_no}
+	        AND A.MEMBER_NO = #{member_no}
+	        AND A.TEMP_YN = 'Y'
+	        AND A.DEL_YN = 'N'
+	   ORDER BY A.ANSWER_NO	
+	</select>
+
+	<update id="deleteTempAnswer" parameterType="answerVO">
+        UPDATE ANSWER
+		   SET DEL_YN = 'Y'
+			 , UPDATE_DT = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+		 WHERE MEMBER_NO = #{member_no}
+		   AND SURVEY_NO = #{survey_no}
+		   AND TEMP_YN = 'Y'
+		   AND DEL_YN = 'N'
+	</update>
+
+	<insert id="insertParticipate" parameterType="participateVO">
+		<selectKey keyProperty="participate_no" keyColumn="PARTICIPATE_NO" resultType="Integer" order="BEFORE">
+			SELECT SEQ_PARTICIPATE.NEXTVAL
+			  FROM DUAL
+		</selectKey>
+		
+		INSERT INTO PARTICIPATE (
+		                          PARTICIPATE_NO
+		                        , SURVEY_NO
+		                        , MEMBER_NO
+		                        , REGIST_DT
+		                        , UPDATE_DT
+		                        )
+		                 VALUES (
+		                          #{participate_no}
+		                        , #{survey_no}
+		                        , #{member_no}
+		                        , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI')
+		                        , TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI')
+		                        )
+	</insert>
+
+	<insert id="insertAnswer" parameterType="java.util.List">
+		INSERT INTO ANSWER (
+		                     ANSWER_NO
+		                   , PARTICIPATE_NO
+		                   , SURVEY_NO
+		                   , MEMBER_NO
+		                   , QUESTION_NO
+		                   , SELECTION_ORDR
+		                   , CONTENT
+		                   , TEMP_YN
+		                   , DEL_YN
+		                   , REGIST_DT
+		                   , UPDATE_DT
+		                   )
+		            VALUES
+		            	<foreach collection="list" item="item" separator=",">
+            				<foreach collection="item.selection_ordr" item="ordr" separator=",">
+			                	(
+			                	  SEQ_ANSWER.NEXTVAL
+			                	, #{item.participate_no}
+			                	, #{item.survey_no}
+			                	, #{item.member_no}
+			                	, #{item.question_no}
+			                	, #{ordr}
+			                	, #{item.content}
+			                	, 'N'
+			                	, 'N'
+			                	, TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+			                	, TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+			                	)
+		                	</foreach>	
+		                </foreach>
+	</insert>
+	
+	<insert id="insertTempAnswer" parameterType="java.util.List">
+		INSERT INTO ANSWER (
+		                     ANSWER_NO
+		                   , PARTICIPATE_NO
+		                   , SURVEY_NO
+		                   , MEMBER_NO
+		                   , QUESTION_NO
+		                   , SELECTION_ORDR
+		                   , CONTENT
+		                   , TEMP_YN
+		                   , DEL_YN
+		                   , REGIST_DT
+		                   , UPDATE_DT
+		                   )
+		            VALUES
+		            	<foreach collection="list" item="item" separator=",">
+            				<foreach collection="item.selection_ordr" item="ordr" separator=",">
+			                	(
+			                	  SEQ_ANSWER.NEXTVAL
+			                	, 0
+			                	, #{item.survey_no}
+			                	, #{item.member_no}
+			                	, #{item.question_no}
+			                	, #{ordr}
+			                	, #{item.content}
+			                	, 'Y'
+			                	, 'N'
+			                	, TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+			                	, TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')
+			                	)
+		                	</foreach>
+		                </foreach>
+	</insert>
+	
+	<select id="selectSurveyListforManage" parameterType="searchVO" resultType="surveyVO">
+		SELECT SURVEY_NO
+		     , HOST_NAME
+		     , SURVEY_TITLE
+		     , START_DT
+	         , TO_CHAR(TO_DATE(START_DT, 'YYYY-MM-DD'), 'DY') AS START_DY
+	         , TO_CHAR(TO_DATE(END_DT, 'YYYY-MM-DD') - 1, 'YYYY-MM-DD') AS END_DT
+	         , TO_CHAR(TO_DATE(END_DT, 'YYYY-MM-DD') - 1, 'DY') AS END_DY
+		     , REGIST_DT
+		     , UPDATE_DT
+		  FROM SURVEY
+		 WHERE DEL_YN = 'N'
+		   AND MENU_TYPE = #{menuType}
+      ORDER BY SURVEY_NO DESC
+		 
+	</select>
+	
+	<select id="selectQuestionCategoryList" resultType="egovframework.fusion.survey.vo.QuestionCategoryVO">
+		SELECT QUESTION_CATEGORY_NO
+		     , QUESTION_CATEGORY_NAME
+		  FROM QUESTION_CATEGORY
+		 WHERE DEL_YN = 'N'
+	</select>
+	
+	<insert id="insertSurvey" parameterType="surveyVO">
+		<selectKey keyColumn="SURVEY_NO" keyProperty="survey_no" resultType="Integer" order="BEFORE">
+			SELECT SEQ_SURVEY.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO SURVEY (
+							 SURVEY_NO
+						   , MEMBER_NO
+						   , HOST_NAME
+						   , SURVEY_TITLE
+						   , CONTENT
+						   , START_DT
+						   , END_DT
+						   , REGIST_DT
+						   , UPDATE_DT
+						   , DEL_YN
+						   , WIN_OPEN_DT
+						   , WIN_OPEN_LOC
+						   , SUBJECT
+						   , SUBMIT_CNT
+						   , MENU_TYPE
+						   )
+				    VALUES (
+				             #{survey_no}
+				           , #{member_no}
+				           , #{host_name}
+				           , #{survey_title}
+				           , #{content}
+				           , #{start_dt}
+				           , #{end_dt}
+				           , TO_CHAR(SYSDATE, 'YYYY-MM-DD')
+				           , TO_CHAR(SYSDATE, 'YYYY-MM-DD')
+				           , 'N'
+				           , #{win_open_dt}
+				           , #{win_open_loc}
+						   ,  <foreach collection="subjectList" item="item" separator=" || ', ' || ">
+					              #{item}
+					          </foreach>
+				           , #{submit_cnt}
+				           , #{menu_type}
+				           )
+				           
+	</insert>
+	<select id="selectQuestionSequenceList" resultType="Integer">
+		SELECT SEQ_QUESTION.NEXTVAL
+		FROM (
+				SELECT LEVEL
+				FROM DUAL
+				<![CDATA[
+				CONNECT BY LEVEL -1 < #{value}
+				]]>
+		      )
+	</select>
+
+	<select id="selectSelectionSequenceList" resultType="Integer">
+		SELECT SEQ_SELECTION.NEXTVAL
+		FROM (
+				SELECT LEVEL
+				FROM DUAL
+				<![CDATA[
+				CONNECT BY LEVEL -1 < #{value}
+				]]>
+			 )
+	</select>
+	
+	<insert id="insertQuestion" parameterType="java.util.List">
+		INSERT INTO QUESTION
+		            VALUES
+		                  <foreach collection="list" item="item" separator=", ">
+		                  	(
+		                  	  #{item.question_no}
+		                  	, #{item.survey_no}
+		                  	, #{item.question_num}
+		                  	, #{item.parent_no}
+		                  	, #{item.question_category_no}
+		                  	, #{item.content}
+		                  	, #{item.necessity_yn}
+		                  	, 'N'
+		                  	, #{item.answer_cnt}
+		                  	, #{item.selection_no}
+		                  	)
+		                  </foreach>
+	</insert>
+	
+	<insert id="insertSelection" parameterType="java.util.List">
+		INSERT INTO SELECTION
+		            VALUES
+		                  <foreach collection="list" item="item" separator=", ">
+		                  	(
+		                  	  #{item.selection_no}
+		                  	, #{item.selection_ordr}
+		                  	, #{item.selection_name}
+		                  	, 'N'
+		                  	)
+		                  </foreach>
+	</insert>
+	
+	<update id="updateSurvey" parameterType="surveyVO">
+		UPDATE SURVEY
+		   SET HOST_NAME = #{host_name}
+		     , SURVEY_TITLE = #{survey_title}
+		     , CONTENT = #{content}
+		     , START_DT = #{start_dt}
+		     , END_DT = #{end_dt}
+		     , UPDATE_DT = TO_CHAR(SYSDATE, 'YYYY-MM-DD')
+		     , WIN_OPEN_DT = #{win_open_dt}
+		     , WIN_OPEN_LOC = #{win_open_loc}
+		     , SUBJECT = #{subject}
+		     , SUBMIT_CNT = #{submit_cnt}
+		 WHERE SURVEY_NO = #{survey_no}
+	</update>
+	
+	<update id="deleteSurvey" parameterType="surveyVO">
+		UPDATE SURVEY
+		   SET DEL_YN = 'Y'
+		     , UPDATE_DT = TO_CHAR(SYSDATE, 'YYYY-MM-DD')
+		 WHERE SURVEY_NO = #{survey_no}
+	</update>
+		
+	<update id="deleteSurveyQuestion" parameterType="surveyVO">
+		UPDATE QUESTION
+		   SET DEL_YN = 'Y'
+		 WHERE SURVEY_NO = #{survey_no}
+		   AND DEL_YN = 'N'
+	</update>
+	
+	<update id="deleteSurveySelection" parameterType="surveyVO">
+		UPDATE Selection
+		   SET DEL_YN = 'Y'
+		 WHERE SELECTION_NO IN (
+		                         SELECT DISTINCT SELECTION_NO
+		                           FROM QUESTION
+		                          WHERE SURVEY_NO = #{survey_no}
+		                            AND DEL_YN = 'N'
+		                       )
+		   AND DEL_YN = 'N'
+	</update>
+	
+	<select id="selectQuestionListForManage" parameterType="surveyVO" resultMap="questionNSelectionForManage">
+		 SELECT A.QUESTION_NO
+	          , A.SURVEY_NO
+	          , A.QUESTION_NUM
+	          , A.PARENT_NO
+	          , A.QUESTION_CATEGORY_NO
+	          , B.QUESTION_CATEGORY_NAME
+	          , A.CONTENT
+	          , A.SELECTION_NO
+	          , A.ANSWER_CNT
+	          , A.NECESSITY_YN
+		   FROM QUESTION A
+LEFT OUTER JOIN QUESTION_CATEGORY B
+		     ON A.QUESTION_CATEGORY_NO = B.QUESTION_CATEGORY_NO
+		  WHERE A.SURVEY_NO = #{survey_no}
+		    AND A.PARENT_NO = 0
+		    AND A.DEL_YN = 'N'
+		 ORDER BY A.QUESTION_NO
+	</select>	
+	
+	<select id="selectChildQuestionList" parameterType="questionVO" resultMap="childQuestionNSelectionForManage">
+		 SELECT A.QUESTION_NO
+	          , A.SURVEY_NO
+	          , A.QUESTION_NUM
+	          , A.PARENT_NO
+	          , A.QUESTION_CATEGORY_NO
+	          , B.QUESTION_CATEGORY_NAME
+	          , A.CONTENT
+	          , A.SELECTION_NO
+	          , A.ANSWER_CNT
+	          , A.NECESSITY_YN
+		   FROM QUESTION A
+LEFT OUTER JOIN QUESTION_CATEGORY B
+		     ON A.QUESTION_CATEGORY_NO = B.QUESTION_CATEGORY_NO
+		  WHERE A.PARENT_NO = #{parent_no}
+		    AND A.DEL_YN = 'N'
+		 ORDER BY A.QUESTION_NO
+	</select>
+	
+	<update id="deleteQuestionList" parameterType="java.util.List">
+		UPDATE QUESTION
+		   SET DEL_YN = 'Y'
+		 WHERE QUESTION_NO IN (
+		 						<foreach collection="list" item="item" separator=", ">
+		 							#{item.question_no}
+		 						</foreach>
+		 					  )
+	</update>
+	
+	<update id="deleteSelectionListFromQuestionList" parameterType="java.util.List">
+		UPDATE SELECTION
+		   SET DEL_YN = 'Y' 
+		 WHERE SELECTION_NO IN (
+		 						<foreach collection="list" item="item" separator=", ">
+		 							#{item.selection_no}
+		 						</foreach>
+		 					   )
+	</update>
+	
+	<update id="deleteSelectionList" parameterType="java.util.List">
+		<foreach collection="list" item="item" open="DECLARE BEGIN" separator="; " close="; END;">
+			UPDATE SELECTION
+			   SET DEL_YN = 'Y'
+			 WHERE SELECTION_NO = #{item.selection_no}
+			   AND SELECTION_ORDR = #{item.selection_ordr}
+		 </foreach>
+	</update>
+	
+	<update id="updateQuestionList" parameterType="java.util.List">
+		<foreach collection="list" item="item" open="DECLARE BEGIN" separator="; " close="; END;">
+			UPDATE QUESTION
+			   SET QUESTION_NUM = #{item.question_num}
+			     , PARENT_NO = #{item.parent_no}
+			     , QUESTION_CATEGORY_NO = #{item.question_category_no}
+			     , CONTENT = #{item.content}
+			     , NECESSITY_YN = #{item.necessity_yn}
+			     , ANSWER_CNT = #{item.answer_cnt}
+			     , SELECTION_NO = #{item.selection_no}
+			 WHERE SURVEY_NO = #{item.survey_no}
+			   AND QUESTION_NO = #{item.question_no}
+			   AND DEL_YN = 'N'
+		</foreach>
+	</update>
+	
+	<update id="updateSelectionList" parameterType="java.util.List">
+		<foreach collection="list" item="item" open="DECLARE BEGIN" separator="; " close="; END;">
+			UPDATE SELECTION
+			   SET SELECTION_NAME = #{item.selection_name}
+			 WHERE SELECTION_NO = #{item.selection_no}
+			   AND SELECTION_ORDR = #{item.selection_ordr}
+			   AND DEL_YN = 'N'
+		</foreach>
+	</update>
+	
+	<select id="selectMaxSelectionOrdr" parameterType="selectionVO"  resultType="int">
+			SELECT NVL(MAX(SELECTION_ORDR) + 1, 1)
+			  FROM SELECTION
+			 WHERE SELECTION_NO = #{selection_no}
+	</select>
+	
+	<insert id="insertAddedSelectionListInExist" parameterType="java.util.List">
+			INSERT INTO SELECTION
+			               VALUES
+			               		<foreach collection="list" item="item" index="idx" separator=", ">
+			                      (
+			                    	#{item.selection_no}
+			                      , #{item.selection_ordr} + #{idx}
+			                      , #{item.selection_name}
+			                      , 'N'
+			                      )
+								</foreach>
+	</insert>
+
+	<select id="selectIntegSrchSurveyList" parameterType="searchVO" resultType="surveyVO">
+		SELECT A.SURVEY_NO
+		     , A.SURVEY_TITLE
+		     , B.ID
+		     , A.CONTENT
+		     , A.MENU_TYPE
+		     , (
+	             SELECT DISTINCT MENU_FORM
+	               FROM MENU
+	              WHERE MENU_FORM = A.MENU_TYPE
+	            ) AS MENU_FORM
+		  FROM SURVEY A INNER JOIN MEMBER B
+		    ON A.MEMBER_NO = B.MEMBER_NO
+		 WHERE A.DEL_YN = 'N'
+		   AND A.MENU_TYPE = #{menuType}
+	   <if test="srchText != null and srchType.equals('all')">
+	       AND (
+		             B.ID LIKE '%' || #{srchText} || '%'
+				  OR A.SURVEY_TITLE LIKE '%' || #{srchText} || '%'
+				  OR A.CONTENT LIKE '%' || #{srchText} || '%'
+			   )
+	   </if>
+	   <if test="srchText != null and srchType.equals('writer')">
+	       AND B.ID LIKE '%' || #{srchText} || '%'
+	   </if>
+	   <if test="srchText != null and srchType.equals('title')">
+	       AND A.SURVEY_TITLE LIKE '%' || #{srchText} || '%'
+	   </if>
+	   <if test="srchText != null and srchType.equals('content')">
+	       AND A.CONTENT LIKE '%' || #{srchText} || '%'
+	   </if>
+	   ORDER BY A.SURVEY_NO
+	</select>
+</mapper>
