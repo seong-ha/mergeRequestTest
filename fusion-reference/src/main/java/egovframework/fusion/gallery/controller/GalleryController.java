@@ -85,7 +85,7 @@ public class GalleryController {
 		
 		
 		System.out.println("feat2 수정1");
-		
+		System.out.println("feat2 수정2");
 		
 		
 		
