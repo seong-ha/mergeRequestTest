@@ -82,10 +82,10 @@ public class GalleryController {
 			searchVO.setCntPerPage(8);
 		}
 		
+		System.out.println("feat2 수정1");
+		System.out.println("feat2 수정2");
 		System.out.println("feat1 수정1");
 		System.out.println("feat1 수정2");
-		
-		
 		
 		
 		
