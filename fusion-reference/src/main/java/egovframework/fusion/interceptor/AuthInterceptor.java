@@ -57,7 +57,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 		}
 		
 		System.out.println("hotFix 수정1");
-		
+		System.out.println("hotFix2 수정1");
 		return true;
 		
 	}
