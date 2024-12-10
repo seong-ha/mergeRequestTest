@@ -41,9 +41,9 @@ public class LogAdvice {
 		
 		dao.insertAccessLog(accessLogVO);
 		
-		System.out.println("★★★★★★★★★★★★★★★★★★★★★");
+		System.out.println("featA 수정1");
+		System.out.println("featA 수정2");
 		System.out.println("featB 수정1");
-		System.out.println("★★★★★★★★★★★★★★★★★★★★★");
 		System.out.println("featB 수정2");
 		System.out.println("★★★★★★★★★★★★★★★★★★★★★");
 	}
