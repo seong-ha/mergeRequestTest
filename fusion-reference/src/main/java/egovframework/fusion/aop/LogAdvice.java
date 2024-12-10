@@ -43,7 +43,7 @@ public class LogAdvice {
 		
 		System.out.println("featA 수정1");
 		System.out.println("★★★★★★★★★★★★★★★★★★★★★");
-		System.out.println("★★★★★★★★★★★★★★★★★★★★★");
+		System.out.println("featA 수정2");
 		System.out.println("★★★★★★★★★★★★★★★★★★★★★");
 		System.out.println("★★★★★★★★★★★★★★★★★★★★★");
 	}
