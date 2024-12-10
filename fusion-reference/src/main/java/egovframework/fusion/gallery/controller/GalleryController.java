@@ -86,7 +86,9 @@ public class GalleryController {
 		System.out.println("feat2 수정2");
 		System.out.println("feat1 수정1");
 		System.out.println("feat1 수정2");
-		
+		System.out.println("feat3 수정1");
+		System.out.println("feat3 수정2");
+    System.out.println("feat4 수정1");
 		
 		
 		// 게시판 종류 부여
