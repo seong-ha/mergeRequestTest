@@ -47,5 +47,7 @@ public class LogAdvice {
 		System.out.println("featB 수정2");
 		System.out.println("featC 수정1");
 		System.out.println("featC 수정2");
+		
+		System.out.println("last1 수정1");
 	}
 }
