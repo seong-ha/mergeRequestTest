@@ -149,7 +149,7 @@
 				return;
 			}
 			
-			console.log(content);;;;;;;;;;;;;;;;;;;;;;;;;;;;
+			console.log(content);
 			let data = {
 					'title': '',
 					'content': content,
