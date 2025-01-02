@@ -149,11 +149,7 @@
 				return;
 			}
 			
-<<<<<<< HEAD
-			console.log(content);;;;
-=======
 			console.log(content);;;
->>>>>>> refs/heads/second-master
 			let data = {
 					'title': '',
 					'content': content,
